@@ -10,111 +10,113 @@ export const Hero = () => {
   useEffect(() => setMounted(true), []);
 
   return (
-    <section className="relative pt-32 pb-32 px-6 sm:px-12 flex flex-col items-center text-center overflow-hidden min-h-[90vh] justify-center">
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 bg-[var(--background)]">
-        <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-indigo-500/20 blur-[100px] mix-blend-multiply dark:mix-blend-screen animate-pulse duration-1000"></div>
-        <div className="absolute top-40 -right-40 w-96 h-96 rounded-full bg-purple-500/20 blur-[100px] mix-blend-multiply dark:mix-blend-screen animate-pulse duration-1000 delay-500"></div>
-      </div>
+    <section className="relative pt-40 pb-32 px-6 sm:px-12 flex flex-col items-center text-center overflow-hidden min-h-screen justify-center border-b border-[var(--border)]">
+      <div className="absolute inset-0 w-full h-full bg-black -z-20"></div>
+      
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-white/5 blur-[120px] rounded-full pointer-events-none -z-10"></div>
+      
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none -z-10"></div>
 
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-gray-800 border border-[var(--border)] shadow-sm text-sm font-semibold mb-8 backdrop-blur-md"
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-sm font-medium mb-12 backdrop-blur-md text-white/70"
       >
-        <Lightning size={16} weight="fill" className="text-[var(--brand)]" />
-        <span className="text-[var(--text-secondary)]">Trusted by <span className="text-[var(--text-primary)]">500+</span> businesses</span>
+        <span className="flex h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
+        SmartDocs 2.0 is now live
       </motion.div>
       
       <motion.h1 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="text-[56px] sm:text-[72px] leading-[1.05] font-extrabold text-[var(--text-primary)] max-w-4xl tracking-tighter mb-8"
+        transition={{ delay: 0.1, duration: 0.8, ease: "easeOut" }}
+        className="text-[60px] sm:text-[96px] leading-[1.0] font-bold text-transparent bg-clip-text bg-gradient-to-b from-white to-white/40 max-w-5xl tracking-tighter mb-8"
       >
-        Your docs. Your AI. <br className="hidden sm:block" />
-        <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--brand)] to-purple-600">Embedded in 5 minutes.</span>
+        Automate your support. <br className="hidden sm:block" />
+        Zero configuration.
       </motion.h1>
 
       <motion.p 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="text-[20px] text-[var(--text-secondary)] max-w-2xl mb-12 font-medium leading-relaxed"
+        transition={{ delay: 0.2, duration: 0.8, ease: "easeOut" }}
+        className="text-[20px] text-white/50 max-w-2xl mb-12 font-medium leading-relaxed"
       >
-        SmartDocs trains a chatbot on your documentation and embeds it on your website. Customers get instant answers. You stop repeating yourself.
+        Upload your knowledge base. Get a hyper-intelligent AI agent in seconds. Embed it anywhere with one line of code.
       </motion.p>
 
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="flex flex-col sm:flex-row gap-4 mb-10 w-full sm:w-auto"
+        transition={{ delay: 0.3, duration: 0.8, ease: "easeOut" }}
+        className="flex flex-col sm:flex-row gap-4 mb-16 w-full sm:w-auto"
       >
-        <Link href="/auth/signup" className="px-8 py-4 bg-[var(--brand)] hover:bg-[var(--brand-hover)] text-white rounded-xl font-bold transition-all active:scale-95 shadow-xl shadow-indigo-500/30 flex items-center justify-center gap-2 text-lg">
-          Start for free <span className="font-normal">→</span>
+        <Link href="/auth/signup" className="px-8 py-4 bg-white text-black hover:bg-gray-200 rounded-lg font-bold transition-all shadow-[0_0_40px_rgba(255,255,255,0.2)] flex items-center justify-center gap-2 text-lg">
+          Start building free <span className="font-normal text-gray-500">→</span>
         </Link>
-        <button className="px-8 py-4 bg-white dark:bg-[var(--surface)] border border-[var(--border)] text-[var(--text-primary)] hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl font-bold transition-all active:scale-95 shadow-sm text-lg">
-          See live demo
+        <button className="px-8 py-4 bg-white/5 border border-white/10 text-white hover:bg-white/10 rounded-lg font-bold transition-all text-lg backdrop-blur-sm">
+          View Documentation
         </button>
       </motion.div>
-
-      <motion.p 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="text-[14px] text-[var(--text-muted)] font-medium"
-      >
-        No credit card required · Setup in 5 minutes · Cancel anytime
-      </motion.p>
 
       {mounted && (
         <motion.div 
           initial={{ opacity: 0, y: 100 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, type: "spring", stiffness: 100 }}
-          className="mt-20 w-full max-w-3xl relative"
+          transition={{ delay: 0.5, duration: 1, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full max-w-4xl relative perspective-1000"
         >
-          <div className="absolute inset-0 bg-gradient-to-t from-[var(--background)] via-transparent to-transparent z-10"></div>
-          <div className="bg-white dark:bg-gray-800 rounded-t-2xl shadow-2xl border border-[var(--border)] border-b-0 overflow-hidden flex flex-col relative mx-auto w-full sm:w-3/4 max-w-lg h-[400px]">
-            <div className="h-16 bg-[var(--brand)] text-white flex items-center px-6 gap-3">
-              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
-                <Robot size={24} weight="fill" />
-              </div>
-              <div>
-                <div className="font-bold">SmartDocs Support</div>
-                <div className="text-xs text-indigo-200 flex items-center gap-1">
-                  <div className="w-2 h-2 rounded-full bg-green-400"></div> Online
-                </div>
-              </div>
+          <div className="absolute inset-x-20 top-0 h-[2px] bg-gradient-to-r from-transparent via-white/50 to-transparent blur-sm"></div>
+          <div className="absolute inset-x-20 top-0 h-[1px] bg-gradient-to-r from-transparent via-white to-transparent"></div>
+          
+          <div className="bg-[#0a0a0a] rounded-t-xl border border-white/10 shadow-2xl overflow-hidden flex flex-col mx-auto w-full h-[450px] transform-gpu" style={{ transform: "rotateX(10deg) scale(0.95)" }}>
+            
+            <div className="h-12 border-b border-white/5 flex items-center px-4 gap-2 bg-white/[0.02]">
+              <div className="w-3 h-3 rounded-full bg-white/20"></div>
+              <div className="w-3 h-3 rounded-full bg-white/20"></div>
+              <div className="w-3 h-3 rounded-full bg-white/20"></div>
+              <div className="ml-4 px-3 py-1 bg-white/5 border border-white/10 rounded text-xs text-white/40 font-mono">dashboard.smartdocs.ai</div>
             </div>
             
-            <div className="p-6 flex-1 bg-gray-50 dark:bg-gray-900/50 flex flex-col gap-4">
-              <motion.div 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 1 }}
-                className="self-start max-w-[80%] bg-white dark:bg-[var(--surface)] border border-[var(--border)] p-4 rounded-2xl rounded-tl-sm text-[var(--text-primary)] shadow-sm font-medium"
-              >
-                Hi there! 👋 I'm trained on all our documentation. How can I help you today?
-              </motion.div>
-              
-              <motion.div 
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 2.5 }}
-                className="self-end max-w-[80%] bg-[var(--brand)] text-white p-4 rounded-2xl rounded-tr-sm shadow-md font-medium"
-              >
-                How do I embed the widget?
-              </motion.div>
+            <div className="flex-1 flex">
+              <div className="w-64 border-r border-white/5 bg-white/[0.01] p-4 flex flex-col gap-2">
+                <div className="h-8 bg-white/5 rounded-md w-full animate-pulse"></div>
+                <div className="h-8 bg-white/5 rounded-md w-3/4 animate-pulse"></div>
+                <div className="h-8 bg-white/5 rounded-md w-5/6 animate-pulse"></div>
+              </div>
+              <div className="flex-1 p-8 flex flex-col gap-6">
+                <div className="flex justify-between items-end border-b border-white/5 pb-4">
+                  <div>
+                    <div className="text-xl text-white font-semibold mb-1">Knowledge Sources</div>
+                    <div className="text-sm text-white/40">Sync your external data</div>
+                  </div>
+                  <div className="px-4 py-2 bg-white text-black text-sm font-semibold rounded-md">Add Source</div>
+                </div>
+                
+                <div className="border border-white/10 rounded-lg bg-white/[0.02] p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded bg-white/10 flex items-center justify-center text-white/50 font-bold text-xs">PDF</div>
+                    <div>
+                      <div className="text-white text-sm font-medium">company_handbook.pdf</div>
+                      <div className="text-white/40 text-xs">Indexed • 422 chunks</div>
+                    </div>
+                  </div>
+                  <div className="px-2 py-1 bg-green-500/10 text-green-400 text-xs rounded border border-green-500/20">Active</div>
+                </div>
+                
+                <div className="border border-white/10 rounded-lg bg-white/[0.02] p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded bg-white/10 flex items-center justify-center text-white/50 font-bold text-xs">URL</div>
+                    <div>
+                      <div className="text-white text-sm font-medium">https://api.stripe.com/docs</div>
+                      <div className="text-white/40 text-xs">Syncing...</div>
+                    </div>
+                  </div>
+                  <div className="px-2 py-1 bg-yellow-500/10 text-yellow-400 text-xs rounded border border-yellow-500/20 animate-pulse">Processing</div>
+                </div>
 
-              <motion.div 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 4 }}
-                className="self-start max-w-[80%] bg-white dark:bg-[var(--surface)] border border-[var(--border)] p-4 rounded-2xl rounded-tl-sm text-[var(--text-primary)] shadow-sm font-medium"
-              >
-                It's very easy! Just copy the single script tag provided in your dashboard and paste it right before the closing <code>&lt;/body&gt;</code> tag on your website.
-              </motion.div>
+              </div>
             </div>
           </div>
         </motion.div>

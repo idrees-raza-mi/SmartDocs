@@ -1,89 +1,68 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ShieldCheck, Globe, ClockCounterClockwise, ChartBar, Translate, UserCirclePlus } from '@phosphor-icons/react';
+import { Database, Lightning, Lock, ChartBar, Code, Globe } from '@phosphor-icons/react';
 
 const features = [
   {
-    title: 'Answers from YOUR docs only',
-    description: 'No hallucinations. The AI only answers using the context you provide, and clearly cites its sources for every response.',
-    icon: ShieldCheck,
+    icon: Database,
+    title: 'Vector Search Engine',
+    desc: 'Powered by pgvector and OpenAI embeddings. Semantic search that understands intent, not just keywords.'
   },
   {
-    title: 'Works on any website',
-    description: 'Whether you use Shopify, WordPress, Webflow, or raw HTML, our shadow-DOM widget integrates perfectly without breaking your styles.',
-    icon: Globe,
+    icon: Lightning,
+    title: 'Edge Streaming',
+    desc: 'Responses are streamed instantly from the edge. Zero latency. Fluid user experience.'
   },
   {
-    title: 'Full conversation history',
-    description: 'See every question your customers are asking. Read full transcripts to understand what your users truly care about.',
-    icon: ClockCounterClockwise,
+    icon: Lock,
+    title: 'Strict Grounding',
+    desc: 'Configured to never hallucinate. If the answer isn\'t in your docs, the AI explicitly states it and routes to a human.'
   },
   {
-    title: 'Unanswered questions dashboard',
-    description: 'Instantly know exactly what your documentation is missing. Fill content gaps to continually improve the AI.',
+    icon: Code,
+    title: 'Headless Widget',
+    desc: 'Vanilla JS, Shadow DOM wrapped widget. Drops into React, Vue, WordPress, or Webflow perfectly.'
+  },
+  {
     icon: ChartBar,
+    title: 'Deep Analytics',
+    desc: 'Track unhandled queries. Identify exactly what documentation you are missing.'
   },
   {
-    title: 'Multi-language support',
-    description: 'Automatically responds in the language the user types in, translating your documentation context on the fly.',
-    icon: Translate,
-  },
-  {
-    title: 'Human escalation',
-    description: 'Smoothly hands off to human agents when the bot isn\'t sure, collecting customer emails for follow-up.',
-    icon: UserCirclePlus,
+    icon: Globe,
+    title: 'Auto-Translation',
+    desc: 'Upload English docs, get support in 50+ languages automatically. No manual translation required.'
   }
 ];
 
 export const Features = () => {
   return (
-    <section className="py-24 px-6 sm:px-12 max-w-7xl mx-auto">
-      <div className="text-center mb-20">
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          className="inline-block mb-4 px-3 py-1 rounded-full bg-[var(--brand-light)] text-[var(--brand)] text-sm font-bold uppercase tracking-wider"
-        >
-          Everything you need
-        </motion.div>
-        <motion.h2 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-3xl sm:text-5xl font-extrabold text-[var(--text-primary)] mb-6 tracking-tight"
-        >
-          Professional support, automated.
-        </motion.h2>
-        <motion.p 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.1 }}
-          className="text-xl text-[var(--text-secondary)] max-w-3xl mx-auto"
-        >
-          We've built all the features you need to deliver an enterprise-grade AI chat experience to your users, right out of the box.
-        </motion.p>
+    <section className="py-32 px-6 sm:px-12 max-w-7xl mx-auto border-b border-white/5">
+      <div className="mb-20">
+        <h2 className="text-3xl sm:text-5xl font-bold text-white mb-6 tracking-tight">Built for engineers. <br className="hidden sm:block" /><span className="text-white/40">Designed for scale.</span></h2>
+        <p className="text-xl text-white/50 max-w-2xl leading-relaxed">
+          We abstracted away the complexity of building RAG pipelines. Focus on your product while we handle the vector math.
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {features.map((feature, idx) => {
-          const Icon = feature.icon;
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {features.map((f, i) => {
+          const Icon = f.icon;
           return (
             <motion.div 
-              key={feature.title}
+              key={f.title}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: idx * 0.1 }}
-              className="bg-white dark:bg-[var(--surface)] p-8 rounded-2xl border border-[var(--border)] shadow-sm hover:shadow-xl transition-shadow duration-300 group"
+              transition={{ delay: i * 0.1 }}
+              className="p-8 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors group"
             >
-              <div className="w-14 h-14 bg-gray-50 dark:bg-gray-800 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-[var(--brand-light)] group-hover:text-[var(--brand)] transition-all duration-300">
-                <Icon size={28} weight="duotone" className="text-[var(--text-secondary)] group-hover:text-[var(--brand)]" />
+              <div className="w-12 h-12 bg-white/5 border border-white/10 rounded-lg flex items-center justify-center mb-6 group-hover:border-white/20 transition-colors">
+                <Icon size={24} className="text-white/80" weight="duotone" />
               </div>
-              <h3 className="text-xl font-bold text-[var(--text-primary)] mb-3">{feature.title}</h3>
-              <p className="text-[var(--text-secondary)] leading-relaxed">{feature.description}</p>
+              <h3 className="text-lg font-bold text-white mb-3 tracking-tight">{f.title}</h3>
+              <p className="text-white/50 leading-relaxed text-sm">{f.desc}</p>
             </motion.div>
           );
         })}

@@ -1,81 +1,75 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { UploadSimple, Robot, Code } from '@phosphor-icons/react';
-
-const steps = [
-  {
-    icon: UploadSimple,
-    title: 'Add your content',
-    description: 'Upload PDFs, paste URLs, or write FAQs directly. We support almost any format of documentation.',
-    color: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400'
-  },
-  {
-    icon: Robot,
-    title: 'AI trains instantly',
-    description: 'We chunk, embed, and index your content in under 60 seconds using state-of-the-art vector processing.',
-    color: 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400'
-  },
-  {
-    icon: Code,
-    title: 'Embed one script tag',
-    description: 'Copy one line of code. Paste it on any website. Done. Your chatbot is instantly live and ready to help.',
-    color: 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'
-  }
-];
 
 export const HowItWorks = () => {
   return (
-    <section className="py-24 px-6 sm:px-12 bg-gray-50 dark:bg-[#111827]/50 relative">
+    <section className="py-32 px-6 sm:px-12 bg-[#050505] relative border-b border-white/5">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] mb-4"
-          >
-            How it works
-          </motion.h2>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="text-lg text-[var(--text-secondary)]"
-          >
-            From documentation to a fully conversational AI in three simple steps.
-          </motion.p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
-          <div className="hidden md:block absolute top-12 left-1/6 right-1/6 h-[2px] bg-gradient-to-r from-transparent via-[var(--border)] to-transparent" />
-
-          {steps.map((step, index) => {
-            const Icon = step.icon;
-            return (
-              <motion.div 
-                key={step.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.2 }}
-                className="relative flex flex-col items-center text-center group"
-              >
-                <div className="relative mb-6">
-                  <div className="absolute inset-0 bg-white dark:bg-gray-800 rounded-full blur-xl opacity-50 group-hover:opacity-100 transition-opacity"></div>
-                  <div className={`relative w-24 h-24 rounded-3xl ${step.color} flex items-center justify-center shadow-lg transform group-hover:-translate-y-2 transition-all duration-300 ring-1 ring-black/5 dark:ring-white/10 rotate-3 group-hover:rotate-0`}>
-                    <Icon size={48} weight="duotone" />
+        <div className="flex flex-col md:flex-row gap-16 items-center">
+          <div className="flex-1">
+            <h2 className="text-3xl sm:text-5xl font-bold text-white mb-6 tracking-tight">Three steps to automation.</h2>
+            <p className="text-xl text-white/50 mb-12">No complicated pipelines. We handle the chunking, embedding, and storage.</p>
+            
+            <div className="space-y-8">
+              {[
+                { step: '01', title: 'Connect Data', desc: 'Sync your website URLs, PDF manuals, or paste raw text. We securely process and encrypt everything.' },
+                { step: '02', title: 'Vector Generation', desc: 'Our engine chunks your text and generates dense vectors using OpenAI embeddings.' },
+                { step: '03', title: 'Deploy Widget', desc: 'Inject our lightweight script onto your frontend. Your users get instant, accurate answers.' }
+              ].map((s, i) => (
+                <motion.div 
+                  key={s.step}
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.2 }}
+                  className="flex gap-6"
+                >
+                  <div className="text-2xl font-mono text-white/20 font-bold mt-1">{s.step}</div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white mb-2">{s.title}</h3>
+                    <p className="text-white/50 leading-relaxed text-sm">{s.desc}</p>
                   </div>
-                  <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-[var(--brand)] text-white font-bold flex items-center justify-center shadow-md border-2 border-white dark:border-[var(--background)]">
-                    {index + 1}
-                  </div>
-                </div>
-                <h3 className="text-xl font-bold text-[var(--text-primary)] mb-3">{step.title}</h3>
-                <p className="text-[var(--text-secondary)] leading-relaxed">{step.description}</p>
-              </motion.div>
-            );
-          })}
+                </motion.div>
+              ))}
+            </div>
+          </div>
+          
+          <div className="flex-1 w-full">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              className="bg-[#0a0a0a] rounded-2xl border border-white/10 p-6 shadow-2xl relative"
+            >
+              <div className="flex items-center gap-2 mb-6">
+                <div className="w-3 h-3 rounded-full bg-red-500/50"></div>
+                <div className="w-3 h-3 rounded-full bg-yellow-500/50"></div>
+                <div className="w-3 h-3 rounded-full bg-green-500/50"></div>
+                <span className="ml-2 text-xs font-mono text-white/30">index.html</span>
+              </div>
+              <div className="font-mono text-sm leading-loose overflow-x-auto text-white/80">
+                <div className="text-white/30">{`<!DOCTYPE html>`}</div>
+                <div className="text-white/30">{`<html>`}</div>
+                <div className="text-white/30 pl-4">{`<head>`}</div>
+                <div className="text-white/30 pl-8">{`<title>My Website</title>`}</div>
+                <div className="text-white/30 pl-4">{`</head>`}</div>
+                <div className="text-white/30 pl-4">{`<body>`}</div>
+                <div className="text-white/30 pl-8">{`<!-- Main Content -->`}</div>
+                <div className="text-white/30 pl-8">{`<h1>Welcome to our store</h1>`}</div>
+                <br/>
+                <div className="text-white/50 pl-8">{`<!-- SmartDocs Widget -->`}</div>
+                <div className="pl-8 text-blue-400">{`<script`}</div>
+                <div className="pl-12 text-blue-300">{`src=`}<span className="text-green-300">"https://smartdocs.app/widget.js"</span></div>
+                <div className="pl-12 text-blue-300">{`data-chatbot-id=`}<span className="text-green-300">"org_a8f9d2..."</span></div>
+                <div className="pl-12 text-blue-300">{`defer`}</div>
+                <div className="pl-8 text-blue-400">{`></script>`}</div>
+                <br/>
+                <div className="text-white/30 pl-4">{`</body>`}</div>
+                <div className="text-white/30">{`</html>`}</div>
+              </div>
+            </motion.div>
+          </div>
         </div>
       </div>
     </section>
