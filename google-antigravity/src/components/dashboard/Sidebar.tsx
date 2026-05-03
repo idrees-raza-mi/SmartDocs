@@ -16,19 +16,19 @@ const navItems = [
 
 export const Sidebar = () => {
   const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed] = useState(false);
 
   return (
     <aside className={clsx(
-      "hidden sm:flex flex-col bg-white dark:bg-[var(--surface)] border-r border-[var(--border)] transition-all duration-300",
+      "hidden sm:flex flex-col bg-[#0a0a0a] border-r border-white/5 transition-all duration-300",
       collapsed ? "w-[64px]" : "w-[240px]"
     )}>
-      <div className="h-16 flex items-center px-4 border-b border-[var(--border)]">
-        <Robot size={28} weight="bold" className="text-[var(--brand)] shrink-0" />
-        {!collapsed && <span className="ml-2 font-bold text-lg text-[var(--text-primary)] truncate">SmartDocs</span>}
+      <div className="h-16 flex items-center px-6 border-b border-white/5">
+        <Robot size={28} weight="duotone" className="text-white shrink-0" />
+        {!collapsed && <span className="ml-3 font-bold text-lg text-white tracking-tight truncate">SmartDocs</span>}
       </div>
 
-      <div className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
+      <div className="flex-1 py-6 px-3 space-y-1 overflow-y-auto">
         {navItems.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
           const Icon = item.icon;
@@ -37,23 +37,23 @@ export const Sidebar = () => {
               key={item.name}
               href={item.href}
               className={clsx(
-                "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors group",
+                "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors group text-sm font-medium",
                 isActive 
-                  ? "bg-[var(--brand)] text-white" 
-                  : "text-[var(--text-secondary)] hover:bg-[var(--brand-light)] hover:text-[var(--brand)] dark:hover:bg-white/5"
+                  ? "bg-white/10 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]" 
+                  : "text-white/50 hover:bg-white/5 hover:text-white"
               )}
             >
-              <Icon size={20} weight={isActive ? "fill" : "bold"} className="shrink-0" />
-              {!collapsed && <span className="font-medium text-sm truncate">{item.name}</span>}
+              <Icon size={20} weight={isActive ? "fill" : "regular"} className="shrink-0" />
+              {!collapsed && <span className="truncate">{item.name}</span>}
             </Link>
           );
         })}
       </div>
 
-      <div className="p-4 border-t border-[var(--border)]">
-        <button className="flex items-center gap-3 w-full px-3 py-2 text-[var(--text-secondary)] hover:text-[var(--error)] transition-colors rounded-lg hover:bg-red-50 dark:hover:bg-red-900/10">
-          <SignOut size={20} weight="bold" className="shrink-0" />
-          {!collapsed && <span className="font-medium text-sm">Sign Out</span>}
+      <div className="p-4 border-t border-white/5">
+        <button className="flex items-center gap-3 w-full px-3 py-2 text-white/50 hover:text-red-400 transition-colors rounded-lg hover:bg-red-500/10 text-sm font-medium">
+          <SignOut size={20} weight="regular" className="shrink-0" />
+          {!collapsed && <span>Sign Out</span>}
         </button>
       </div>
     </aside>
