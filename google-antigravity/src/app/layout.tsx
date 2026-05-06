@@ -15,8 +15,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'SmartDocs AI | Your docs. Your AI.',
-  description: 'Train an AI on your docs in 5 minutes. Embed it on your site with one line of code. Never answer the same support question twice.',
+  title: 'DocWise | Turn your docs into a wise AI agent',
+  description: 'DocWise trains an AI on your knowledge base and makes it conversational. Embed it on your website in seconds. No hallucinations. No generic answers.',
+  keywords: ['AI chatbot', 'documentation', 'customer support', 'RAG', 'knowledge base'],
 };
 
 export default function RootLayout({
@@ -27,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           {children}
         </ThemeProvider>
       </body>

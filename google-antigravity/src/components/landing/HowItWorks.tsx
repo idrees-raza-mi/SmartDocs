@@ -58,9 +58,9 @@ export const HowItWorks = () => {
                 <div className="text-white/30 pl-8">{`<!-- Main Content -->`}</div>
                 <div className="text-white/30 pl-8">{`<h1>Welcome to our store</h1>`}</div>
                 <br/>
-                <div className="text-white/50 pl-8">{`<!-- SmartDocs Widget -->`}</div>
+                <div className="text-white/50 pl-8">{`<!-- DocWise Widget -->`}</div>
                 <div className="pl-8 text-blue-400">{`<script`}</div>
-                <div className="pl-12 text-blue-300">{`src=`}<span className="text-green-300">"https://smartdocs.app/widget.js"</span></div>
+                <div className="pl-12 text-blue-300">{`src=`}<span className="text-green-300">"https://app.docwise.ai/widget.js"</span></div>
                 <div className="pl-12 text-blue-300">{`data-chatbot-id=`}<span className="text-green-300">"org_a8f9d2..."</span></div>
                 <div className="pl-12 text-blue-300">{`defer`}</div>
                 <div className="pl-8 text-blue-400">{`></script>`}</div>

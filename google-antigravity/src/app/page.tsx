@@ -1,20 +1,17 @@
+import { Logo } from '@/components/ui/Logo';
 import { Hero } from '@/components/landing/Hero';
 import { HowItWorks } from '@/components/landing/HowItWorks';
 import { Features } from '@/components/landing/Features';
 import { Testimonials } from '@/components/landing/Testimonials';
 import { PricingSection } from '@/components/landing/PricingSection';
 import { Footer } from '@/components/landing/Footer';
-import { Robot } from '@phosphor-icons/react/dist/ssr';
 import Link from 'next/link';
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-black selection:bg-white/20 selection:text-white">
-      <nav className="fixed top-0 left-0 right-0 h-20 bg-black/50 backdrop-blur-xl border-b border-white/5 z-50 flex items-center justify-between px-6 sm:px-12 transition-all">
-        <Link href="/" className="flex items-center gap-2 text-white font-bold text-2xl tracking-tight">
-          <Robot size={32} weight="duotone" />
-          SmartDocs
-        </Link>
+      <nav className="fixed top-0 left-0 right-0 h-20 bg-black/60 backdrop-blur-xl border-b border-white/5 z-50 flex items-center justify-between px-6 sm:px-12">
+        <Link href="/"><Logo size="sm" /></Link>
         <div className="hidden md:flex items-center gap-8">
           <Link href="#how-it-works" className="text-sm font-medium text-white/60 hover:text-white transition-colors">How it works</Link>
           <Link href="#features" className="text-sm font-medium text-white/60 hover:text-white transition-colors">Features</Link>
@@ -27,7 +24,6 @@ export default function LandingPage() {
           </Link>
         </div>
       </nav>
-
       <main>
         <Hero />
         <div id="how-it-works"><HowItWorks /></div>
@@ -35,7 +31,6 @@ export default function LandingPage() {
         <Testimonials />
         <PricingSection />
       </main>
-
       <Footer />
     </div>
   );

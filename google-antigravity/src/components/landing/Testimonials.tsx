@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 
 const testimonials = [
   {
-    quote: "SmartDocs replaced our $300/mo Intercom setup in 5 minutes. It handles 80% of our support volume flawlessly.",
+    quote: "DocWise replaced our $300/mo Intercom setup in 5 minutes. It handles 80% of our support volume flawlessly.",
     name: "Sarah Jenkins",
     company: "Founder, SaaSFlow",
     avatar: "https://i.pravatar.cc/150?img=1"

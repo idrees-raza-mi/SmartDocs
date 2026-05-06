@@ -57,7 +57,7 @@ export default function SettingsTab() {
       <div className="bg-white dark:bg-[var(--surface)] border border-[var(--border)] rounded-xl p-6 shadow-sm flex items-center justify-between">
         <div>
           <h3 className="font-bold text-[var(--text-primary)] mb-1 flex items-center gap-2">Remove Branding <Lock size={16} className="text-[var(--text-muted)]"/></h3>
-          <p className="text-sm text-[var(--text-secondary)]">Hide the "Powered by SmartDocs" badge on your widget.</p>
+          <p className="text-sm text-[var(--text-secondary)]">Hide the "Powered by DocWise" badge on your widget.</p>
         </div>
         <button className="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-[var(--text-secondary)] rounded-lg text-sm font-medium cursor-not-allowed">
           Pro Plan Required
