@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { ChartBar, ChatCircleDots, Users, GearSix, Lightning, SignOut } from '@phosphor-icons/react';
 import { Logo } from '@/components/ui/Logo';
+import { createClient } from '@/lib/supabase/client';
 import clsx from 'clsx';
 
 const navItems = [
@@ -16,6 +17,13 @@ const navItems = [
 
 export const Sidebar = () => {
   const pathname = usePathname();
+  const router = useRouter();
+  const supabase = createClient();
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.push('/auth/login');
+  };
 
   return (
     <aside className="hidden sm:flex flex-col w-[240px] bg-[#0a0a0a] border-r border-white/5 shrink-0">
@@ -46,7 +54,7 @@ export const Sidebar = () => {
       </div>
 
       <div className="p-4 border-t border-white/5">
-        <button className="flex items-center gap-3 w-full px-3 py-2.5 text-white/40 hover:text-red-400 transition-colors rounded-lg hover:bg-red-500/10 text-sm font-medium">
+        <button onClick={handleSignOut} className="flex items-center gap-3 w-full px-3 py-2.5 text-white/40 hover:text-red-400 transition-colors rounded-lg hover:bg-red-500/10 text-sm font-medium">
           <SignOut size={18} />
           <span>Sign Out</span>
         </button>

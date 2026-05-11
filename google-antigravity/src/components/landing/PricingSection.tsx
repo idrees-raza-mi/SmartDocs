@@ -12,6 +12,7 @@ export const PricingSection = () => {
   const plans = [
     {
       name: 'STARTER',
+      slug: 'starter',
       price: annual ? 24 : 29,
       description: 'Perfect for small websites just getting started.',
       features: ['1 chatbot', '500 messages/month', '5 sources (URLs or files)', 'CSV conversation export', 'Email support', 'DocWise branding shown'],
@@ -20,6 +21,7 @@ export const PricingSection = () => {
     },
     {
       name: 'PRO',
+      slug: 'pro',
       price: annual ? 63 : 79,
       description: 'For growing businesses with support volume.',
       features: ['5 chatbots', '5,000 messages/month', 'Unlimited sources', 'Remove DocWise branding', 'Analytics dashboard', 'Priority support', 'Custom accent color'],
@@ -28,6 +30,7 @@ export const PricingSection = () => {
     },
     {
       name: 'BUSINESS',
+      slug: 'business',
       price: annual ? 159 : 199,
       description: 'For agencies and large scale deployments.',
       features: ['Unlimited chatbots', '50,000 messages/month', 'Unlimited sources', 'White-label (your logo + domain)', 'API access', 'Dedicated support', 'Custom domain for widget'],
@@ -77,15 +80,16 @@ export const PricingSection = () => {
               </div>
             )}
             <h3 className="text-sm font-bold text-white/50 tracking-wider mb-4">{plan.name}</h3>
-            <div className="flex items-baseline gap-2 mb-6">
+            <div className="flex items-baseline gap-2 mb-2">
               <span className="text-5xl font-bold text-white tracking-tighter">${plan.price}</span>
               <span className="text-white/50 font-medium">/mo</span>
             </div>
+            <p className="text-xs text-white/40 mb-6">Includes 7-day free trial · No card required</p>
             
             <p className="text-white/50 text-sm mb-8 h-10">{plan.description}</p>
             
             <Link 
-              href="/auth/signup" 
+              href={`/auth/signup?plan=${plan.slug}`}
               className={clsx(
                 "block w-full text-center py-3 px-4 rounded-lg font-bold transition-all active:scale-95 mb-8 text-sm",
                 plan.recommended 

@@ -6,7 +6,7 @@ import { Logo } from '@/components/ui/Logo';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
@@ -17,6 +17,8 @@ export default function SignupPage() {
   const [success, setSuccess] = useState(false);
 
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const selectedPlan = searchParams.get('plan') || 'starter';
   const supabase = createClient();
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -25,26 +27,31 @@ export default function SignupPage() {
     setError(null);
 
     try {
-      const { data, error: signUpError } = await supabase.auth.signUp({
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
             company_name: companyName,
+            selected_plan: selectedPlan,
           }
         }
       });
 
       if (signUpError) throw signUpError;
+
+      // Send welcome email in background
+      if (signUpData?.session?.access_token) {
+        fetch('/api/emails/welcome', {
+          headers: { 'Authorization': `Bearer ${signUpData.session.access_token}` },
+        }).catch(() => {});
+      }
       
       setSuccess(true);
-      // Wait a bit, then redirect
-      setTimeout(() => {
-        router.push('/dashboard');
-      }, 2000);
+      router.push('/dashboard/chatbots/new');
 
-    } catch (err: any) {
-      setError(err.message || 'Failed to create account.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to create account.');
     } finally {
       setLoading(false);
     }

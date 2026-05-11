@@ -4,6 +4,8 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import clsx from 'clsx';
 import { FileText, Users, ChartLineUp, Code, GearSix } from '@phosphor-icons/react';
+import { usePlanAccess } from '@/hooks/usePlanAccess';
+import { usePremiumPopup } from '@/hooks/usePremiumPopup';
 
 export default function ChatbotDetailLayout({
   children,
@@ -14,14 +16,26 @@ export default function ChatbotDetailLayout({
 }) {
   const pathname = usePathname();
   const baseUrl = `/dashboard/chatbots/${params.id}`;
+  const { checkAccess } = usePlanAccess();
+  const { show } = usePremiumPopup();
 
   const tabs = [
-    { name: 'Sources', href: baseUrl, icon: FileText, exact: true },
-    { name: 'Conversations', href: `${baseUrl}/conversations`, icon: Users },
-    { name: 'Analytics', href: `${baseUrl}/analytics`, icon: ChartLineUp },
-    { name: 'Embed', href: `${baseUrl}/embed`, icon: Code },
-    { name: 'Settings', href: `${baseUrl}/settings`, icon: GearSix },
+    { name: 'Sources', href: baseUrl, icon: FileText, exact: true, premium: false },
+    { name: 'Conversations', href: `${baseUrl}/conversations`, icon: Users, premium: true, feature: 'conversations' },
+    { name: 'Analytics', href: `${baseUrl}/analytics`, icon: ChartLineUp, premium: true, feature: 'analytics' },
+    { name: 'Embed', href: `${baseUrl}/embed`, icon: Code, premium: false },
+    { name: 'Settings', href: `${baseUrl}/settings`, icon: GearSix, premium: false },
   ];
+
+  const handleClick = (e: React.MouseEvent, tab: (typeof tabs)[0]) => {
+    if (tab.premium && tab.feature) {
+      const access = checkAccess(tab.feature as 'analytics')
+      if (!access.allowed) {
+        e.preventDefault()
+        show(tab.name, access.requiredPlan)
+      }
+    }
+  }
 
   return (
     <div className="max-w-6xl mx-auto flex flex-col" style={{ height: 'calc(100vh - 4rem)' }}>
@@ -35,10 +49,12 @@ export default function ChatbotDetailLayout({
           {tabs.map((tab) => {
             const isActive = tab.exact ? pathname === tab.href : pathname.startsWith(tab.href);
             const Icon = tab.icon;
+            const access = tab.premium && tab.feature ? checkAccess(tab.feature as 'analytics') : { allowed: true };
             return (
               <Link
                 key={tab.name}
                 href={tab.href}
+                onClick={(e) => handleClick(e, tab)}
                 className={clsx(
                   "flex items-center gap-2 py-3 px-4 border-b-2 font-medium text-sm transition-all whitespace-nowrap",
                   isActive
@@ -48,6 +64,9 @@ export default function ChatbotDetailLayout({
               >
                 <Icon size={16} weight={isActive ? "fill" : "regular"} />
                 {tab.name}
+                {!access.allowed && (
+                  <span className="text-xs text-amber-600/80">✦</span>
+                )}
               </Link>
             );
           })}

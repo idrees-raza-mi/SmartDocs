@@ -29,7 +29,16 @@ export async function POST(req: Request) {
     const limit = PLAN_LIMITS[plan].messagesPerMonth;
 
     if (org.message_count_this_month >= limit) {
-      return NextResponse.json({ error: 'Message limit reached' }, { status: 429 });
+      const stream = new ReadableStream({
+        start(controller) {
+          const message = "I'm sorry, this chatbot has reached its monthly message limit. Please contact the site owner to upgrade their plan."
+          controller.enqueue(new TextEncoder().encode(message))
+          controller.close()
+        }
+      })
+      return new Response(stream, {
+        headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+      })
     }
 
     const queryEmbedding = await generateEmbedding(message);

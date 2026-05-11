@@ -6,10 +6,13 @@ CREATE TABLE public.organizations (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id uuid REFERENCES auth.users NOT NULL,
     name text NOT NULL,
-    plan text DEFAULT 'free' CHECK (plan IN ('free', 'starter', 'pro', 'business')),
+    plan text DEFAULT 'trial' CHECK (plan IN ('trial', 'starter', 'pro', 'business')),
     stripe_customer_id text,
     stripe_subscription_id text,
     message_count_this_month integer DEFAULT 0,
+    trial_ends_at timestamptz,
+    trial_plan text,
+    billing_period_start timestamptz,
     created_at timestamptz DEFAULT now()
 );
 
@@ -25,6 +28,7 @@ CREATE TABLE public.chatbots (
     show_branding boolean DEFAULT true,
     allowed_domains text[],
     total_messages integer DEFAULT 0,
+    is_active boolean DEFAULT true,
     created_at timestamptz DEFAULT now()
 );
 

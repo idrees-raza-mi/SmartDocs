@@ -14,10 +14,13 @@ export interface Database {
           id: string
           user_id: string
           name: string
-          plan: 'free' | 'starter' | 'pro' | 'business'
+          plan: 'trial' | 'starter' | 'pro' | 'business'
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
           message_count_this_month: number
+          trial_ends_at: string | null
+          trial_plan: string | null
+          billing_period_start: string | null
           created_at: string
         }
         Insert: Omit<Database['public']['Tables']['organizations']['Row'], 'id' | 'created_at' | 'message_count_this_month'> & { id?: string, message_count_this_month?: number, created_at?: string }
@@ -35,6 +38,7 @@ export interface Database {
           show_branding: boolean
           allowed_domains: string[] | null
           total_messages: number
+          is_active: boolean
           created_at: string
         }
         Insert: Omit<Database['public']['Tables']['chatbots']['Row'], 'id' | 'created_at' | 'total_messages'> & { id?: string, total_messages?: number, created_at?: string }
