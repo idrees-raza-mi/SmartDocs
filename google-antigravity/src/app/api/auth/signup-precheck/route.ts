@@ -5,8 +5,7 @@ import { emailFingerprint } from '@/lib/email-fingerprint';
 // Called from the signup form before supabase.auth.signUp(). Returns whether
 // this email is eligible for the free trial. Pre-existing fingerprints are
 // blocked from creating a second trial — they need to start on a paid plan.
-
-export const runtime = 'edge';
+// Node runtime because the fingerprint helper uses Node's crypto module.
 
 export async function POST(req: Request) {
   try {

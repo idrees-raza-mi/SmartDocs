@@ -4,11 +4,19 @@ import Link from 'next/link';
 import { ArrowRight, CheckCircle, WarningCircle } from '@phosphor-icons/react';
 import { Logo } from '@/components/ui/Logo';
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function SignupPage() {
+  return (
+    <Suspense fallback={null}>
+      <SignupPageInner />
+    </Suspense>
+  );
+}
+
+function SignupPageInner() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [companyName, setCompanyName] = useState('');

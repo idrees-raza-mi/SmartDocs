@@ -4,7 +4,9 @@ import { hashApiKey } from '@/lib/api-keys';
 
 // Public REST API. Same shape as the widget endpoint but authenticated by
 // API key — meant for headless integrations. Returns JSON, not a stream.
-export const runtime = 'edge';
+// Runs on Node.js because the API-key hash helper uses Node's crypto module;
+// this route is a thin wrapper around the (edge) /api/chat endpoint, so the
+// latency hit is negligible.
 
 export async function POST(req: Request) {
   try {
