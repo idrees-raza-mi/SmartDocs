@@ -5,6 +5,7 @@ import { generateEmbedding, searchSimilarChunks } from '@/lib/embeddings';
 import { PLAN_LIMITS, type PlanType } from '@/lib/constants';
 import { rateLimit } from '@/lib/rate-limit';
 import { enrichAfterChat } from '@/lib/post-chat';
+import { effectivePlan } from '@/lib/plan';
 
 export const runtime = 'edge';
 
@@ -81,7 +82,7 @@ export async function POST(req: Request) {
 
     const { data: chatbot, error: chatbotError } = await supabaseAdmin
       .from('chatbots')
-      .select('id, name, system_prompt, total_messages, is_active, allowed_domains, org_id, organizations(id, plan, message_count_this_month)')
+      .select('id, name, system_prompt, total_messages, is_active, allowed_domains, org_id, organizations(id, plan, trial_ends_at, message_count_this_month)')
       .eq('id', chatbotId)
       .single();
 
@@ -105,7 +106,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Organization not found' }, { status: 404, headers: corsHeaders });
     }
 
-    const plan = (org.plan in PLAN_LIMITS ? org.plan : 'trial') as PlanType;
+    const plan: PlanType = effectivePlan(org);
     const limit = PLAN_LIMITS[plan].messagesPerMonth;
 
     if (org.message_count_this_month >= limit) {

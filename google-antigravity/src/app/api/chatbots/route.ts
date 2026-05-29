@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { PLAN_LIMITS, type PlanType } from '@/lib/constants';
+import { effectivePlan } from '@/lib/plan';
 
 export async function POST(req: Request) {
   try {
@@ -24,7 +25,7 @@ export async function POST(req: Request) {
 
     const { data: org } = await supabaseAdmin
       .from('organizations')
-      .select('id, plan')
+      .select('id, plan, trial_ends_at')
       .eq('user_id', user.id)
       .single();
 
@@ -32,7 +33,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Organization not found' }, { status: 404 });
     }
 
-    const plan = (org.plan in PLAN_LIMITS ? org.plan : 'trial') as PlanType;
+    const plan: PlanType = effectivePlan(org);
     const limit = PLAN_LIMITS[plan].chatbots;
 
     if (limit !== -1) {

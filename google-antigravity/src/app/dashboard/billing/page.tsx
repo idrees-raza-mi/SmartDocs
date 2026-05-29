@@ -88,13 +88,18 @@ function BillingPageInner() {
   }
 
   const plan: PlanType = org.plan;
+  // For limits + display, treat expired trials as already on the free tier.
+  const trialIsExpired = plan === 'trial' && org.trial_ends_at
+    ? new Date(org.trial_ends_at) <= new Date()
+    : false;
+  const effective: PlanType = trialIsExpired ? 'free' : plan;
   const limits: {
     messagesPerMonth: number;
     chatbots: number;
     sources: number;
     analytics: boolean;
     customBranding: boolean;
-  } = PLAN_LIMITS[plan];
+  } = PLAN_LIMITS[effective];
   const messageUsage = Math.min(org.message_count_this_month || 0, limits.messagesPerMonth);
   const messagePct = limits.messagesPerMonth === -1 ? 0 : Math.round((messageUsage / limits.messagesPerMonth) * 100);
   const chatbotPct = limits.chatbots === -1 ? 0 : Math.round((chatbotCount / limits.chatbots) * 100);
@@ -121,9 +126,9 @@ function BillingPageInner() {
     return `${diff} days remaining`;
   }
 
-  const planOrder: PlanType[] = ['starter', 'pro', 'business'];
-  const currentIndex = planOrder.indexOf(plan);
-  const nextPlan = currentIndex >= 0 && currentIndex < planOrder.length - 1 ? planOrder[currentIndex + 1] : null;
+  const paidPlanOrder: PlanType[] = ['starter', 'pro', 'business'];
+  const currentIndex = paidPlanOrder.indexOf(effective);
+  const nextPlan = currentIndex >= 0 && currentIndex < paidPlanOrder.length - 1 ? paidPlanOrder[currentIndex + 1] : null;
 
   async function handleUpgrade(upgradePlan: string) {
     const { data: { session } } = await supabase.auth.getSession();
@@ -144,15 +149,24 @@ function BillingPageInner() {
     }
   }
 
-  const planName = plan.charAt(0).toUpperCase() + plan.slice(1);
+  const planName = effective.charAt(0).toUpperCase() + effective.slice(1);
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
 
-      {expired && (
+      {trialIsExpired && (
+        <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl flex items-center gap-3">
+          <WarningCircle size={20} weight="fill" className="text-blue-400 shrink-0" />
+          <p className="text-sm text-blue-300 font-medium">
+            Your trial has ended. You&apos;re now on the <b>Free</b> plan — your chatbot keeps working, with monthly limits. Upgrade anytime to unlock more.
+          </p>
+        </div>
+      )}
+
+      {expired && !trialIsExpired && (
         <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3">
           <WarningCircle size={20} weight="fill" className="text-red-400 shrink-0" />
-          <p className="text-sm text-red-300 font-medium">Your trial has ended. Choose a plan to continue using DocWise.</p>
+          <p className="text-sm text-red-300 font-medium">Your trial has ended. Choose a plan to continue using SmartDocs.</p>
         </div>
       )}
 
@@ -176,17 +190,15 @@ function BillingPageInner() {
           <div>
             <h2 className="text-lg font-bold text-white tracking-tight">Current Plan</h2>
             <p className="text-sm text-white/40 mt-1">
-              {plan === 'trial' ? 'Trial' : planName} plan
-              {plan === 'trial' && daysRemaining() && (
+              {planName} plan
+              {effective === 'trial' && daysRemaining() && (
                 <span className="ml-2 text-amber-400 font-medium">({daysRemaining()})</span>
               )}
             </p>
           </div>
-          {plan !== 'trial' && (
-            <div className="px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-sm font-bold text-white">
-              {planName}
-            </div>
-          )}
+          <div className="px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-sm font-bold text-white">
+            {planName}
+          </div>
         </div>
 
         {/* Usage Bars */}
@@ -239,11 +251,11 @@ function BillingPageInner() {
       </div>
 
       {/* Upgrade Section */}
-      {plan === 'trial' && (
+      {(effective === 'free' || effective === 'trial') && (
         <div>
           <h2 className="text-lg font-bold text-white tracking-tight mb-6">Choose a plan</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {planOrder.map((p) => {
+            {paidPlanOrder.map((p) => {
               const price = PLAN_PRICES[p as keyof typeof PLAN_PRICES];
               const pLimits: typeof limits = PLAN_LIMITS[p];
               return (
@@ -279,7 +291,7 @@ function BillingPageInner() {
         </div>
       )}
 
-      {plan !== 'trial' && nextPlan && (
+      {effective !== 'free' && effective !== 'trial' && nextPlan && (
         <div className="bg-[#0a0a0a] border border-white/5 rounded-2xl p-8 text-center">
           <h2 className="text-lg font-bold text-white tracking-tight mb-2">Ready for more?</h2>
           <p className="text-sm text-white/50 mb-6">Upgrade to {nextPlan.charAt(0).toUpperCase() + nextPlan.slice(1)} for more features and higher limits.</p>

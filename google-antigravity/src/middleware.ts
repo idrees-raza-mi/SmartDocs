@@ -95,12 +95,9 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL('/auth/signup', request.url))
       }
 
-      if (org.plan === 'trial' && org.trial_ends_at) {
-        const trialExpired = new Date(org.trial_ends_at) < new Date()
-        if (trialExpired && pathname !== '/dashboard/billing') {
-          return NextResponse.redirect(new URL('/dashboard/billing?expired=true', request.url))
-        }
-      }
+      // Trial expiration no longer blocks the user — they're silently
+      // downgraded to the permanent free tier by the daily cron, and the
+      // app's runtime gates respect free-tier limits via effectivePlan().
     } catch {
       // Database temporarily unreachable — let the page render and the
       // client-side data fetch will show its own error state.

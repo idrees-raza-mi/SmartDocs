@@ -2,11 +2,11 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { sendTrialEndingEmail } from '@/lib/emails';
 
-// Runs daily. Sends a reminder at 5 days left, 2 days left, and 0 days left.
-// Idempotency is best-effort — Resend will dedup identical sends from the same
-// address within minutes; for stricter dedup track sent-at in a column.
+// Runs daily. Two responsibilities:
+//   1. Send reminder emails at 5 days and 2 days before trial ends.
+//   2. Auto-downgrade trials whose trial_ends_at has passed → plan='free'.
 
-const REMIND_AT_DAYS = [5, 2, 0];
+const REMIND_AT_DAYS = [5, 2];
 
 export async function GET(req: Request) {
   try {
@@ -21,15 +21,29 @@ export async function GET(req: Request) {
       .eq('plan', 'trial')
       .not('trial_ends_at', 'is', null);
 
-    if (!orgs || orgs.length === 0) return NextResponse.json({ sent: 0 });
+    if (!orgs || orgs.length === 0) {
+      return NextResponse.json({ sent: 0, downgraded: 0 });
+    }
 
     const now = new Date();
     let sent = 0;
+    let downgraded = 0;
 
     for (const org of orgs) {
       try {
         const endDate = new Date(org.trial_ends_at!);
         const diffDays = Math.ceil((endDate.getTime() - now.getTime()) / 86400000);
+
+        if (diffDays <= 0) {
+          // Trial is over → silently move to permanent free tier. The user can
+          // keep using the app at free limits; their data is preserved.
+          await supabaseAdmin
+            .from('organizations')
+            .update({ plan: 'free', trial_ends_at: null })
+            .eq('id', org.id);
+          downgraded++;
+          continue;
+        }
 
         if (!REMIND_AT_DAYS.includes(diffDays)) continue;
 
@@ -43,7 +57,7 @@ export async function GET(req: Request) {
       }
     }
 
-    return NextResponse.json({ sent });
+    return NextResponse.json({ sent, downgraded });
   } catch (error: unknown) {
     console.error('Cron error:', error);
     return NextResponse.json({ error: error instanceof Error ? error.message : 'Cron failed' }, { status: 500 });

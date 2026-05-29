@@ -1,5 +1,8 @@
 export const PLAN_LIMITS = {
-  trial: {
+  // Permanent free tier — no time limit. Designed as the acquisition funnel:
+  // generous enough to give real value, restrictive enough to push serious
+  // users to upgrade.
+  free: {
     chatbots: 1,
     messagesPerMonth: 50,
     sources: 1,
@@ -10,6 +13,28 @@ export const PLAN_LIMITS = {
     conversations: false,
     customBranding: false,
     leadCapture: false,
+    scheduledRecrawl: false,
+    knowledgeGap: false,
+    confidenceScoring: false,
+    slackWebhook: false,
+    dailyDigest: false,
+    auditLog: false,
+    customDomain: false,
+    teamMembers: 1,
+  },
+  // 7-day trial during which the new user effectively gets Starter-tier
+  // features so they can experience the value before deciding to pay.
+  trial: {
+    chatbots: 1,
+    messagesPerMonth: 500,
+    sources: 5,
+    sitemapMaxUrls: 0,
+    apiAccess: false,
+    webhooks: false,
+    analytics: true,
+    conversations: true,
+    customBranding: false,
+    leadCapture: true,
     scheduledRecrawl: false,
     knowledgeGap: false,
     confidenceScoring: false,
@@ -84,7 +109,7 @@ export const PLAN_LIMITS = {
 export type PlanType = keyof typeof PLAN_LIMITS;
 export type PlanFeature = keyof typeof PLAN_LIMITS['trial'];
 
-export const PLAN_ORDER: PlanType[] = ['trial', 'starter', 'pro', 'business'];
+export const PLAN_ORDER: PlanType[] = ['free', 'trial', 'starter', 'pro', 'business'];
 
 export function planRank(plan: PlanType): number {
   return PLAN_ORDER.indexOf(plan);

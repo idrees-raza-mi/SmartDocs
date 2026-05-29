@@ -14,7 +14,7 @@ ALTER TABLE organizations
 
 ALTER TABLE organizations
   ADD CONSTRAINT organizations_plan_check
-  CHECK (plan IN ('trial', 'starter', 'pro', 'business'));
+  CHECK (plan IN ('free', 'trial', 'starter', 'pro', 'business'));
 
 -- Update default plan to trial
 ALTER TABLE organizations

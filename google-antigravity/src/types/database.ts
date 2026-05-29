@@ -17,7 +17,7 @@ export interface Database {
           id: string
           user_id: string
           name: string
-          plan: 'trial' | 'starter' | 'pro' | 'business'
+          plan: 'free' | 'trial' | 'starter' | 'pro' | 'business'
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
           message_count_this_month: number
@@ -30,7 +30,7 @@ export interface Database {
           id?: string
           user_id: string
           name: string
-          plan?: 'trial' | 'starter' | 'pro' | 'business'
+          plan?: 'free' | 'trial' | 'starter' | 'pro' | 'business'
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           message_count_this_month?: number
