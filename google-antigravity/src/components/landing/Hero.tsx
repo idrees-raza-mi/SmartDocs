@@ -52,9 +52,9 @@ export const Hero = () => {
         <Link href="/auth/signup" className="px-8 py-4 bg-white text-black hover:bg-gray-200 rounded-lg font-bold transition-all shadow-[0_0_40px_rgba(255,255,255,0.15)] flex items-center justify-center gap-2 text-lg group">
           Start building free <span className="text-gray-500 group-hover:translate-x-1 transition-transform">→</span>
         </Link>
-        <button className="px-8 py-4 bg-white/5 border border-white/10 text-white hover:bg-white/10 rounded-lg font-bold transition-all text-lg backdrop-blur-sm">
+        <Link href="/docs" className="px-8 py-4 bg-white/5 border border-white/10 text-white hover:bg-white/10 rounded-lg font-bold transition-all text-lg backdrop-blur-sm flex items-center justify-center">
           View Documentation
-        </button>
+        </Link>
       </motion.div>
 
       <motion.p

@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
-import { sendTrialEndingSoonEmail, sendTrialExpiredEmail } from '@/lib/emails';
+import { sendTrialEndingEmail } from '@/lib/emails';
+
+// Runs daily. Sends a reminder at 5 days left, 2 days left, and 0 days left.
+// Idempotency is best-effort — Resend will dedup identical sends from the same
+// address within minutes; for stricter dedup track sent-at in a column.
+
+const REMIND_AT_DAYS = [5, 2, 0];
 
 export async function GET(req: Request) {
   try {
@@ -15,30 +21,29 @@ export async function GET(req: Request) {
       .eq('plan', 'trial')
       .not('trial_ends_at', 'is', null);
 
-    if (!orgs || orgs.length === 0) {
-      return NextResponse.json({ sent: 0 });
-    }
+    if (!orgs || orgs.length === 0) return NextResponse.json({ sent: 0 });
 
     const now = new Date();
-    let sentCount = 0;
+    let sent = 0;
 
     for (const org of orgs) {
-      const endDate = new Date(org.trial_ends_at);
-      const diffDays = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      try {
+        const endDate = new Date(org.trial_ends_at!);
+        const diffDays = Math.ceil((endDate.getTime() - now.getTime()) / 86400000);
 
-      const { data: { user } } = await supabaseAdmin.auth.admin.getUserById(org.user_id);
-      if (!user?.email) continue;
+        if (!REMIND_AT_DAYS.includes(diffDays)) continue;
 
-      if (diffDays === 2) {
-        await sendTrialEndingSoonEmail(user.email, org.name || user.email, diffDays);
-        sentCount++;
-      } else if (diffDays <= 0) {
-        await sendTrialExpiredEmail(user.email, org.name || user.email);
-        sentCount++;
+        const { data: { user } } = await supabaseAdmin.auth.admin.getUserById(org.user_id);
+        if (!user?.email) continue;
+
+        await sendTrialEndingEmail(user.email, diffDays, org.name);
+        sent++;
+      } catch (innerErr) {
+        console.error('trial-emails inner:', innerErr);
       }
     }
 
-    return NextResponse.json({ sent: sentCount });
+    return NextResponse.json({ sent });
   } catch (error: unknown) {
     console.error('Cron error:', error);
     return NextResponse.json({ error: error instanceof Error ? error.message : 'Cron failed' }, { status: 500 });

@@ -20,7 +20,7 @@ export async function POST(req: Request) {
       .eq('user_id', user.id)
       .single();
 
-    await sendWelcomeEmail(user.email, org?.name || user.email);
+    await sendWelcomeEmail(user.email, org?.name ?? null);
 
     return NextResponse.json({ sent: true });
   } catch (error: unknown) {

@@ -5,10 +5,12 @@ import { motion, HTMLMotionProps } from 'framer-motion';
 import { useElementRegistry } from '@/hooks/useElementRegistry';
 import { MotionElement } from '@/types/gravity';
 
-interface Props extends HTMLMotionProps<"div"> {
+interface Props extends Omit<HTMLMotionProps<"div">, 'children'> {
   id: string;
   type?: MotionElement['type'];
   as?: React.ElementType;
+  href?: string;
+  children?: React.ReactNode;
 }
 
 export const MotionWrapper = ({ id, type = 'default', as = 'div', children, ...props }: Props) => {

@@ -53,21 +53,18 @@ export default function NewChatbotWizard() {
     setError(null);
 
     try {
-      const { data: chatbot, error: createError } = await supabase
-        .from('chatbots')
-        .insert({
-          org_id: orgId,
+      const res = await fetch('/api/chatbots', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           name: name.trim(),
           welcome_message: welcomeMessage.trim(),
           accent_color: accentColor,
-          system_prompt: null,
-          placeholder_text: 'Ask me anything...',
-          show_branding: true,
-        })
-        .select()
-        .single();
-
-      if (createError) throw createError;
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to create chatbot');
+      const chatbot = data.chatbot;
       if (!chatbot) throw new Error('Failed to create chatbot');
 
       setChatbotId(chatbot.id);

@@ -27,7 +27,7 @@ export const GoogleLogo = () => {
           type="logo"
           as="span"
           initial={{ y: 0 }}
-          animate={!isAntigravityEnabled ? { ...idleAnimation, transition: { ...idleAnimation.transition, delay: i * staggerDelay } } : {}}
+          animate={!isAntigravityEnabled ? ({ ...idleAnimation, transition: { ...idleAnimation.transition, delay: i * staggerDelay } } as never) : {}}
           className="font-product-sans font-bold text-[72px] sm:text-[90px] leading-none drop-shadow-none dark:drop-shadow-[0_0_8px_currentColor]"
           style={{ color: l.color, width: l.width, textAlign: 'center' }}
         >

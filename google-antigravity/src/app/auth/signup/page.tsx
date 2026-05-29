@@ -27,6 +27,23 @@ export default function SignupPage() {
     setError(null);
 
     try {
+      // Trial-abuse check: if this email previously had an account, surface
+      // a clear message and require the user to start on a paid plan.
+      const precheckRes = await fetch('/api/auth/signup-precheck', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      if (precheckRes.ok) {
+        const precheck = await precheckRes.json();
+        if (precheck.allowed === false) {
+          throw new Error(
+            precheck.message ||
+              'This email is not eligible for a free trial. Please choose a paid plan to continue.'
+          );
+        }
+      }
+
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,

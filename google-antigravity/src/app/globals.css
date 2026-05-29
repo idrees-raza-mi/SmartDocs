@@ -1,23 +1,45 @@
 @import "tailwindcss";
 
-:root {
+/* Dark theme is the design system's default — variables under :root */
+:root,
+.dark {
   --background: #000000;
   --surface: #0a0a0a;
   --surface-hover: #141414;
   --border: #222222;
   --border-highlight: #333333;
-  
+
   --text-primary: #ffffff;
   --text-secondary: #a1a1aa;
   --text-muted: #52525b;
-  
+
   --brand: #ffffff;
   --brand-hover: #e4e4e7;
   --brand-light: #27272a;
-  
+
   --success: #10b981;
   --error: #ef4444;
   --warning: #f59e0b;
+}
+
+.light {
+  --background: #ffffff;
+  --surface: #f8f9fb;
+  --surface-hover: #f0f1f4;
+  --border: #e4e4e7;
+  --border-highlight: #d4d4d8;
+
+  --text-primary: #0a0a0a;
+  --text-secondary: #52525b;
+  --text-muted: #a1a1aa;
+
+  --brand: #0a0a0a;
+  --brand-hover: #27272a;
+  --brand-light: #f4f4f5;
+
+  --success: #059669;
+  --error: #dc2626;
+  --warning: #d97706;
 }
 
 body {
@@ -26,6 +48,7 @@ body {
   font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 ::-webkit-scrollbar {
@@ -41,4 +64,11 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
+}
+
+/* Util used across the dashboard so light/dark "surface" pages look right */
+.surface {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text-primary);
 }

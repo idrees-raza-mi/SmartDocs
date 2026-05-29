@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { ChatbotCard } from '@/components/dashboard/ChatbotCard';
-import { ChatCircleDots, FileText, Users, WarningCircle, Plus } from '@phosphor-icons/react/dist/ssr';
+import { ChatCircleDots, FileText, Users, WarningCircle, Plus, CheckCircle, Circle, ArrowRight, Code } from '@phosphor-icons/react/dist/ssr';
 import Link from 'next/link';
 
 const now = Date.now();
@@ -121,8 +121,27 @@ export default async function DashboardOverview() {
 
   const dayLabels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
+  const hasChatbot = (chatbots?.length ?? 0) > 0;
+  const hasSource = sourceCount > 0;
+  const hasMessage = unansweredTotal + msgThisMonth > 0;
+  const isFullyOnboarded = hasChatbot && hasSource && hasMessage;
+
   return (
     <div className="space-y-10 max-w-6xl mx-auto">
+
+      {/* Onboarding checklist */}
+      {!isFullyOnboarded && (
+        <div className="bg-gradient-to-br from-white/[0.03] to-transparent border border-white/10 rounded-2xl p-6">
+          <h2 className="text-base font-bold text-white mb-1">Get started</h2>
+          <p className="text-sm text-white/40 mb-5">Finish these steps to launch your chatbot.</p>
+          <div className="space-y-2">
+            <OnboardingItem done={hasChatbot} href="/dashboard/chatbots/new" label="Create a chatbot" />
+            <OnboardingItem done={hasSource} href={hasChatbot && chatbots ? `/dashboard/chatbots/${chatbots[0].id}` : '/dashboard/chatbots'} label="Add a knowledge source" />
+            <OnboardingItem done={hasMessage} href={hasChatbot && chatbots ? `/dashboard/chatbots/${chatbots[0].id}` : '/dashboard/chatbots'} label="Test the chatbot" />
+            <OnboardingItem done={false} href={hasChatbot && chatbots ? `/dashboard/chatbots/${chatbots[0].id}/embed` : '/dashboard/chatbots'} label="Embed it on your site" />
+          </div>
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -221,11 +240,39 @@ export default async function DashboardOverview() {
         )}
       </div>
 
+      {/* Quick links row */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <Link href="/dashboard/developer" className="bg-[#0a0a0a] border border-white/5 rounded-2xl p-5 hover:border-white/15 transition-colors flex items-center gap-3">
+          <Code size={20} className="text-white/40" />
+          <div className="flex-1">
+            <div className="text-sm font-medium text-white">Developer API</div>
+            <div className="text-xs text-white/40">Integrate via REST</div>
+          </div>
+          <ArrowRight size={14} className="text-white/30" />
+        </Link>
+        <Link href="/dashboard/review" className="bg-[#0a0a0a] border border-white/5 rounded-2xl p-5 hover:border-white/15 transition-colors flex items-center gap-3">
+          <WarningCircle size={20} className="text-white/40" />
+          <div className="flex-1">
+            <div className="text-sm font-medium text-white">Review Queue</div>
+            <div className="text-xs text-white/40">Answer what your bot missed</div>
+          </div>
+          <ArrowRight size={14} className="text-white/30" />
+        </Link>
+        <Link href="/dashboard/billing" className="bg-[#0a0a0a] border border-white/5 rounded-2xl p-5 hover:border-white/15 transition-colors flex items-center gap-3">
+          <FileText size={20} className="text-white/40" />
+          <div className="flex-1">
+            <div className="text-sm font-medium text-white">Billing</div>
+            <div className="text-xs text-white/40">Plan, usage, invoices</div>
+          </div>
+          <ArrowRight size={14} className="text-white/30" />
+        </Link>
+      </div>
+
       {/* Unanswered Questions */}
       <div className="bg-[#0a0a0a] border border-white/5 rounded-2xl p-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-base font-bold text-white tracking-tight">Unanswered Questions</h2>
-          <span className="text-xs text-white/40 font-medium">Last 30 days</span>
+          <span className="text-xs text-white/40 font-medium">Last 7 days</span>
         </div>
         <div className="space-y-3">
           {unansweredQuestions.length === 0 ? (
@@ -243,5 +290,26 @@ export default async function DashboardOverview() {
         </div>
       </div>
     </div>
+  );
+}
+
+function OnboardingItem({ done, href, label }: { done: boolean; href: string; label: string }) {
+  return (
+    <Link
+      href={href}
+      className="flex items-center gap-3 p-3 -mx-2 rounded-lg hover:bg-white/[0.03] transition-colors group"
+    >
+      {done ? (
+        <CheckCircle weight="fill" size={20} className="text-green-400 shrink-0" />
+      ) : (
+        <Circle size={20} className="text-white/30 shrink-0" />
+      )}
+      <span className={done ? 'line-through text-white/40 flex-1 text-sm' : 'text-white/80 flex-1 text-sm font-medium'}>
+        {label}
+      </span>
+      {!done && (
+        <ArrowRight size={14} className="text-white/30 group-hover:text-white/60 group-hover:translate-x-0.5 transition-all" />
+      )}
+    </Link>
   );
 }

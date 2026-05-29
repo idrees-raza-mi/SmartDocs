@@ -34,19 +34,19 @@ export const useAntigravity = () => {
         
         animate(
           ref.current,
-          { 
+          {
             y: yTarget,
             x: xTarget,
             rotate: rotation,
             scale: scale,
-            opacity: [1, 1, 0]
-          },
+            opacity: [1, 1, 0],
+          } as never,
           {
             duration: 2.4,
             delay: delay,
             ease: EASE_CUBIC_BEZIER,
-            opacity: { times: [0, 0.7, 1], duration: 2.4, delay }
-          }
+            opacity: { times: [0, 0.7, 1], duration: 2.4, delay },
+          } as never,
         );
       });
 

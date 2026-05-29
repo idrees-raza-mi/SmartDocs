@@ -8,7 +8,7 @@ export const calculatePhysicsParams = (type: MotionElement['type']) => {
   const xTarget = (Math.random() > 0.5 ? 1 : -1) * (50 + Math.random() * 150);
   const scale = 0.6 + Math.random() * 0.6;
   
-  let override = {};
+  let override: { yTarget?: number; xTarget?: number; rotation?: number; rotDuration?: number } = {};
   if (type === 'logo') {
     override = { yTarget: yTarget * 1.2, rotation: rotation * 1.5, rotDuration: 1.4 };
   } else if (type === 'nav') {

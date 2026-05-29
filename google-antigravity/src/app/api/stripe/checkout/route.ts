@@ -51,7 +51,9 @@ export async function POST(req: Request) {
       customer: stripeCustomerId,
       line_items: [{ price: price.priceId, quantity: 1 }],
       metadata: { org_id: org.id, plan: planId },
-      subscription_data: { trial_period_days: 0 },
+      // No `subscription_data.trial_period_days` — Stripe rejects 0; omitting
+      // the field means "bill immediately", which is what we want when the
+      // user is converting from our internal 7-day trial to a paid plan.
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/billing?success=true`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/billing?canceled=true`,
     });

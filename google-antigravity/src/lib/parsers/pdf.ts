@@ -1,6 +1,11 @@
-import pdfParse from 'pdf-parse';
+import { PDFParse } from 'pdf-parse';
 
 export async function parsePdf(buffer: Buffer): Promise<string> {
-  const data = await pdfParse(buffer);
-  return data.text.replace(/\s+/g, ' ').trim();
+  const parser = new PDFParse({ data: new Uint8Array(buffer) });
+  try {
+    const result = await parser.getText();
+    return result.text.replace(/\s+/g, ' ').trim();
+  } finally {
+    await parser.destroy();
+  }
 }

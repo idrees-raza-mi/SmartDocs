@@ -20,7 +20,7 @@ export async function POST(req: Request) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
         const orgId = session.metadata?.org_id;
-        const plan = session.metadata?.plan;
+        const plan = session.metadata?.plan as 'starter' | 'pro' | 'business' | undefined;
 
         if (orgId && plan) {
           await supabaseAdmin
@@ -47,12 +47,12 @@ export async function POST(req: Request) {
 
         if (org) {
           const priceId = subscription.items.data[0]?.price.id;
-          const planMap: Record<string, string> = {
+          const planMap: Record<string, 'starter' | 'pro' | 'business'> = {
             [process.env.STRIPE_PRICE_STARTER!]: 'starter',
             [process.env.STRIPE_PRICE_PRO!]: 'pro',
             [process.env.STRIPE_PRICE_BUSINESS!]: 'business',
           };
-          const newPlan = planMap[priceId] || 'trial';
+          const newPlan: 'starter' | 'pro' | 'business' | 'trial' = planMap[priceId] || 'trial';
           await supabaseAdmin
             .from('organizations')
             .update({ plan: newPlan })
@@ -79,17 +79,21 @@ export async function POST(req: Request) {
             })
             .eq('id', org.id);
 
-          await supabaseAdmin
+          // Downgrade to trial keeps the org's first (oldest) chatbot active and
+          // deactivates the rest, matching the trial plan's chatbots = 1 limit.
+          const { data: chatbots } = await supabaseAdmin
             .from('chatbots')
-            .update({ is_active: false })
+            .select('id')
             .eq('org_id', org.id)
-            .filter('id', 'not in', (
-              await supabaseAdmin
-                .from('chatbots')
-                .select('id')
-                .eq('org_id', org.id)
-                .limit(1)
-            ).data?.map(c => c.id) || []);
+            .order('created_at', { ascending: true });
+
+          const idsToDeactivate = (chatbots || []).slice(1).map((c) => c.id);
+          if (idsToDeactivate.length > 0) {
+            await supabaseAdmin
+              .from('chatbots')
+              .update({ is_active: false })
+              .in('id', idsToDeactivate);
+          }
         }
         break;
       }
@@ -130,18 +134,12 @@ export async function POST(req: Request) {
           if (org) {
             const { data: orgData } = await supabaseAdmin
               .from('organizations')
-              .select('name')
+              .select('name, user_id')
               .eq('id', org.id)
               .single();
 
-            const { data: userData } = await supabaseAdmin
-              .from('organizations')
-              .select('user_id')
-              .eq('id', org.id)
-              .single();
-
-            if (userData) {
-              const { data: { user } } = await supabaseAdmin.auth.admin.getUserById(userData.user_id);
+            if (orgData) {
+              const { data: { user } } = await supabaseAdmin.auth.admin.getUserById(orgData.user_id);
               if (user?.email) {
                 await resend.emails.send({
                   from: 'DocWise <billing@docwise.ai>',

@@ -4,12 +4,14 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { PLAN_LIMITS, PLAN_PRICES, PlanType } from '@/lib/constants';
+import type { Organization } from '@/types/chatbot';
 import { CheckCircle, WarningCircle } from '@phosphor-icons/react';
 
 export default function BillingPage() {
   const searchParams = useSearchParams();
+  const supabase = createClient();
 
-  const [org, setOrg] = useState<Record<string, string | number | null> | null>(null);
+  const [org, setOrg] = useState<Organization | null>(null);
   const [chatbotCount, setChatbotCount] = useState(0);
   const [sourceCount, setSourceCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -19,7 +21,6 @@ export default function BillingPage() {
   const canceled = searchParams.get('canceled') === 'true';
 
   useEffect(() => {
-    const supabase = createClient();
     async function load() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -78,8 +79,14 @@ export default function BillingPage() {
     );
   }
 
-  const plan = (org.plan || 'trial') as PlanType;
-  const limits = PLAN_LIMITS[plan];
+  const plan: PlanType = org.plan;
+  const limits: {
+    messagesPerMonth: number;
+    chatbots: number;
+    sources: number;
+    analytics: boolean;
+    customBranding: boolean;
+  } = PLAN_LIMITS[plan];
   const messageUsage = Math.min(org.message_count_this_month || 0, limits.messagesPerMonth);
   const messagePct = limits.messagesPerMonth === -1 ? 0 : Math.round((messageUsage / limits.messagesPerMonth) * 100);
   const chatbotPct = limits.chatbots === -1 ? 0 : Math.round((chatbotCount / limits.chatbots) * 100);
@@ -98,7 +105,7 @@ export default function BillingPage() {
   }
 
   function daysRemaining() {
-    if (!org.trial_ends_at) return null;
+    if (!org?.trial_ends_at) return null;
     const end = new Date(org.trial_ends_at);
     const now = new Date();
     const diff = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
@@ -230,7 +237,7 @@ export default function BillingPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {planOrder.map((p) => {
               const price = PLAN_PRICES[p as keyof typeof PLAN_PRICES];
-              const pLimits = PLAN_LIMITS[p];
+              const pLimits: typeof limits = PLAN_LIMITS[p];
               return (
                 <div key={p} className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 hover:border-white/20 transition-colors">
                   <h3 className="text-sm font-bold text-white/50 tracking-wider mb-2 uppercase">{p}</h3>

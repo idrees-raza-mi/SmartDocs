@@ -5,6 +5,9 @@ import { Features } from '@/components/landing/Features';
 import { Testimonials } from '@/components/landing/Testimonials';
 import { PricingSection } from '@/components/landing/PricingSection';
 import { Footer } from '@/components/landing/Footer';
+import { TrustStrip } from '@/components/landing/TrustStrip';
+import { Comparison } from '@/components/landing/Comparison';
+import { FAQ } from '@/components/landing/FAQ';
 import Link from 'next/link';
 
 export default function LandingPage() {
@@ -16,6 +19,7 @@ export default function LandingPage() {
           <Link href="#how-it-works" className="text-sm font-medium text-white/60 hover:text-white transition-colors">How it works</Link>
           <Link href="#features" className="text-sm font-medium text-white/60 hover:text-white transition-colors">Features</Link>
           <Link href="#pricing" className="text-sm font-medium text-white/60 hover:text-white transition-colors">Pricing</Link>
+          <Link href="/docs" className="text-sm font-medium text-white/60 hover:text-white transition-colors">Docs</Link>
         </div>
         <div className="flex items-center gap-4">
           <Link href="/auth/login" className="hidden sm:block text-sm font-medium text-white/60 hover:text-white transition-colors">Log in</Link>
@@ -26,10 +30,13 @@ export default function LandingPage() {
       </nav>
       <main>
         <Hero />
+        <TrustStrip />
         <div id="how-it-works"><HowItWorks /></div>
         <div id="features"><Features /></div>
+        <Comparison />
         <Testimonials />
         <PricingSection />
+        <div id="faq"><FAQ /></div>
       </main>
       <Footer />
     </div>
