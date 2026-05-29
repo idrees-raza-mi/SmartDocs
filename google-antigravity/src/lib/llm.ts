@@ -7,10 +7,12 @@ const apiKey = process.env.GEMINI_API_KEY ?? '';
 export const gemini = new GoogleGenAI({ apiKey });
 
 export const MODELS = {
-  // Free-tier chat model: 15 RPM, 1M TPM, 1500 RPD. Supports streaming.
-  chat: 'gemini-2.0-flash-001',
-  // Newer embedding model; configurable output dimension. We pin to 768
-  // so the pgvector column shape matches what we store in chunks.embedding.
+  // gemini-2.0-flash-001 has limit=0 on the free tier — only the -exp variant
+  // and gemini-1.5-flash are free. 1.5-flash is older but rock-solid and
+  // supports the same conversational features we need.
+  chat: 'gemini-1.5-flash',
+  // Embedding model — configurable output dimension. We pin to 768 so the
+  // pgvector column shape matches chunks.embedding.
   embedding: 'gemini-embedding-001',
 } as const;
 
