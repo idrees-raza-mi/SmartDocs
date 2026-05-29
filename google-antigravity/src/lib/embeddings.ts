@@ -1,4 +1,4 @@
-import { gemini, MODELS } from './llm';
+import { gemini, MODELS, EMBEDDING_DIMENSIONS } from './llm';
 import { supabaseAdmin } from './supabase/admin';
 
 export function chunkText(text: string, maxTokens = 400): string[] {
@@ -41,22 +41,25 @@ export function chunkText(text: string, maxTokens = 400): string[] {
   return chunks;
 }
 
-// Type guard for the shape Google returns from rate-limit / quota errors so
-// we can detect "429-like" failures without depending on string matching.
 function isRetryableError(err: unknown): boolean {
   if (!(err instanceof Error)) return false;
   const msg = err.message.toLowerCase();
-  return msg.includes('429') || msg.includes('quota') || msg.includes('rate') || msg.includes('overloaded');
+  return msg.includes('429') || msg.includes('quota') || msg.includes('rate') || msg.includes('overloaded') || msg.includes('500') || msg.includes('503');
 }
 
 export async function generateEmbedding(text: string): Promise<number[]> {
-  const model = gemini.getGenerativeModel({ model: MODELS.embedding });
   const cleaned = text.replace(/\n/g, ' ');
 
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
-      const result = await model.embedContent(cleaned);
-      return result.embedding.values;
+      const result = await gemini.models.embedContent({
+        model: MODELS.embedding,
+        contents: cleaned,
+        config: { outputDimensionality: EMBEDDING_DIMENSIONS },
+      });
+      const values = result.embeddings?.[0]?.values;
+      if (!values) throw new Error('Embedding response missing values');
+      return values;
     } catch (err) {
       if (attempt === 3) throw err;
       if (isRetryableError(err)) {
@@ -70,24 +73,41 @@ export async function generateEmbedding(text: string): Promise<number[]> {
 }
 
 export async function batchGenerateEmbeddings(texts: string[]): Promise<number[][]> {
-  // Gemini's batchEmbedContents endpoint is unreliable on v1beta (404s on
-  // some models). Individual embedContent calls work reliably. We run them
-  // in capped concurrent waves so a 100-chunk source still ingests quickly.
+  // The new SDK accepts an array of contents in a single embedContent call.
+  // Hard cap of 100 per request so we stay well under the rate limit.
   const cleaned = texts.map((t) => t.replace(/\n/g, ' '));
-  const CONCURRENCY = 5;
-  const embeddings: number[][] = new Array(cleaned.length);
+  const BATCH_SIZE = 100;
+  const embeddings: number[][] = [];
 
-  for (let i = 0; i < cleaned.length; i += CONCURRENCY) {
-    const slice = cleaned.slice(i, i + CONCURRENCY);
-    const results = await Promise.all(slice.map((text) => generateEmbedding(text)));
-    for (let j = 0; j < results.length; j++) {
-      embeddings[i + j] = results[j];
+  for (let i = 0; i < cleaned.length; i += BATCH_SIZE) {
+    const batch = cleaned.slice(i, i + BATCH_SIZE);
+    let succeeded = false;
+
+    for (let attempt = 1; attempt <= 3 && !succeeded; attempt++) {
+      try {
+        const result = await gemini.models.embedContent({
+          model: MODELS.embedding,
+          contents: batch,
+          config: { outputDimensionality: EMBEDDING_DIMENSIONS },
+        });
+        const vectors = result.embeddings?.map((e) => e.values).filter((v): v is number[] => Array.isArray(v));
+        if (!vectors || vectors.length !== batch.length) {
+          throw new Error(`Expected ${batch.length} embeddings, got ${vectors?.length ?? 0}`);
+        }
+        embeddings.push(...vectors);
+        succeeded = true;
+      } catch (err) {
+        if (attempt === 3) throw err;
+        if (isRetryableError(err)) {
+          await new Promise((res) => setTimeout(res, 1000 * Math.pow(2, attempt)));
+        } else {
+          throw err;
+        }
+      }
     }
 
-    // Tiny breather between waves so we stay well under the free-tier rate
-    // limit (1,500 RPM on text-embedding-004).
-    if (i + CONCURRENCY < cleaned.length) {
-      await new Promise((res) => setTimeout(res, 50));
+    if (i + BATCH_SIZE < cleaned.length) {
+      await new Promise((res) => setTimeout(res, 100));
     }
   }
 

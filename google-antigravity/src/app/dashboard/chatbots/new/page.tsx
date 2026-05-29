@@ -6,6 +6,7 @@ import { BookOpen, UploadSimple, Code, ArrowRight, CheckCircle, Spinner } from '
 import { createClient } from '@/lib/supabase/client';
 import { usePlanAccess } from '@/hooks/usePlanAccess';
 import { usePremiumPopup } from '@/hooks/usePremiumPopup';
+import { toast } from '@/lib/toast';
 import clsx from 'clsx';
 
 export default function NewChatbotWizard() {
@@ -84,30 +85,50 @@ export default function NewChatbotWizard() {
       if (!chatbot) throw new Error('Failed to create chatbot');
 
       setChatbotId(chatbot.id);
+      toast.success(`${chatbot.name} created.`);
 
-      // Ingest the initial source if the user filled one in. Errors here
-      // don't block the wizard — the user can re-try from the Sources tab.
-      try {
-        if (trainTab === 'url' && canUseUrlSources && sourceUrl.trim()) {
-          await fetch('/api/ingest/url', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chatbotId: chatbot.id, url: sourceUrl.trim() }),
-          });
-        } else if (trainTab === 'pdf' && trainFile) {
-          const fd = new FormData();
-          fd.append('file', trainFile);
-          fd.append('chatbotId', chatbot.id);
-          await fetch('/api/ingest/pdf', { method: 'POST', body: fd });
-        } else if (trainTab === 'text' && textName.trim() && textBody.trim()) {
-          await fetch('/api/ingest/text', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chatbotId: chatbot.id, name: textName.trim(), content: textBody }),
-          });
+      // Ingest the initial source if the user filled one in. We report
+      // success / failure via toast so the user knows whether training
+      // actually happened.
+      const hasSourceInput =
+        (trainTab === 'url' && sourceUrl.trim()) ||
+        (trainTab === 'pdf' && !!trainFile) ||
+        (trainTab === 'text' && textName.trim() && textBody.trim());
+
+      if (hasSourceInput) {
+        try {
+          let ingestRes: Response;
+          if (trainTab === 'url' && canUseUrlSources) {
+            ingestRes = await fetch('/api/ingest/url', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ chatbotId: chatbot.id, url: sourceUrl.trim() }),
+            });
+          } else if (trainTab === 'pdf' && trainFile) {
+            const fd = new FormData();
+            fd.append('file', trainFile);
+            fd.append('chatbotId', chatbot.id);
+            ingestRes = await fetch('/api/ingest/pdf', { method: 'POST', body: fd });
+          } else if (trainTab === 'text') {
+            ingestRes = await fetch('/api/ingest/text', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ chatbotId: chatbot.id, name: textName.trim(), content: textBody }),
+            });
+          } else {
+            ingestRes = new Response(null, { status: 204 });
+          }
+
+          if (!ingestRes.ok && ingestRes.status !== 204) {
+            const errPayload = await ingestRes.json().catch(() => ({ error: 'Ingest failed' }));
+            toast.error(`Source not added: ${errPayload.error || 'Ingest failed'}`);
+          } else if (ingestRes.status !== 204) {
+            toast.success('Source added — embedding in progress.');
+          }
+        } catch (ingestErr) {
+          const msg = ingestErr instanceof Error ? ingestErr.message : 'Ingest failed';
+          toast.error(`Source not added: ${msg}`);
         }
-      } catch (ingestErr) {
-        console.warn('[wizard] initial source ingest failed:', ingestErr);
       }
 
       setStep(3);
@@ -353,14 +374,18 @@ export default function NewChatbotWizard() {
             <div className="bg-black border border-white/10 rounded-xl p-6 text-left overflow-x-auto mb-10 font-mono text-sm shadow-inner">
               <div className="text-white/30 mb-1">{'<!-- DocWise Widget -->'}</div>
               <div className="text-blue-400">{'<script'}</div>
-              <div className="pl-4 text-blue-300">{'src='}<span className="text-green-300">{"\"http://localhost:3000/widget.js\""}</span></div>
+              <div className="pl-4 text-blue-300">{'src='}<span className="text-green-300">{`"${typeof window !== 'undefined' ? window.location.origin : ''}/widget.js"`}</span></div>
               <div className="pl-4 text-blue-300">{'data-chatbot-id='}<span className="text-green-300">{`"${chatbotId}"`}</span></div>
               <div className="pl-4 text-blue-300">{'defer'}</div>
               <div className="text-blue-400">{'></script>'}</div>
             </div>
 
             <div className="flex justify-center gap-4">
-              <button onClick={() => { navigator.clipboard.writeText(`<script src="http://localhost:3000/widget.js" data-chatbot-id="${chatbotId}" defer></script>`) }}
+              <button onClick={() => {
+                const origin = typeof window !== 'undefined' ? window.location.origin : '';
+                navigator.clipboard.writeText(`<script src="${origin}/widget.js" data-chatbot-id="${chatbotId}" defer></script>`);
+                toast.success('Snippet copied to clipboard.');
+              }}
                 className="px-8 py-3 bg-white/5 border border-white/10 text-white rounded-lg font-bold hover:bg-white/10 transition-colors">
                 Copy Code
               </button>
