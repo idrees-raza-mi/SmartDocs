@@ -1,72 +1,168 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { createClient } from '@/lib/supabase/client';
 import { Spinner } from '@phosphor-icons/react';
 import type { Message } from '@/types/chatbot';
 
-export default function AnalyticsTab({ params }: { params: { id: string } }) {
-  const [data, setData] = useState<{
-    totalMessages: number;
-    escalationRate: string;
-    unansweredCount: number;
-    last7Days: { name: string; messages: number }[];
-    topTopics: { name: string; count: number }[];
-    topUnanswered: [string, number][];
-  } | null>(null);
+type AnalyticsData = {
+  totalMessages: number;
+  escalationRate: string;
+  unansweredCount: number;
+  last7Days: { name: string; messages: number }[];
+  topTopics: { name: string; count: number }[];
+  topUnanswered: [string, number][];
+};
+
+export default function AnalyticsTab({ params }: { params: Promise<{ id: string }> }) {
+  // Next.js 16 passes route params as a Promise to client components.
+  // use() unwraps it; accessing params.id directly would yield undefined
+  // and filter every Supabase query to zero rows.
+  const { id: chatbotId } = use(params);
+
+  const [data, setData] = useState<AnalyticsData | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const supabase = createClient();
 
   useEffect(() => {
-    const cutoff = new Date(Date.now() - 30 * 86400000).toISOString();
-    supabase
-      .from('messages')
-      .select('*, conversations!inner(chatbot_id)')
-      .eq('conversations.chatbot_id', params.id)
-      .gte('created_at', cutoff)
-      .order('created_at', { ascending: true })
-      .then(({ data: msgs }) => {
-        const messages = (msgs || []) as unknown as Message[];
-        const totalMessages = messages.length;
-        const escalatedMsgs = messages.filter(m => m.was_escalated);
-        const escalationRate = totalMessages > 0 ? ((escalatedMsgs.length / totalMessages) * 100).toFixed(1) : '0';
+    let cancelled = false;
 
-        const now = Date.now();
-        const last7Days: { name: string; messages: number }[] = [];
-        for (let i = 6; i >= 0; i--) {
-          const d = new Date(now - i * 86400000);
-          const label = d.toLocaleDateString('en-US', { weekday: 'short' }).slice(0, 3);
-          const count = messages.filter(m => new Date(m.created_at).toDateString() === d.toDateString()).length;
-          last7Days.push({ name: label, messages: count });
+    (async () => {
+      const cutoff = new Date(Date.now() - 30 * 86400000).toISOString();
+
+      // 1. Fetch this chatbot's conversation IDs first. RLS allows the
+      //    owner (and only the owner) to read them. Embedded resource
+      //    filters like `conversations!inner(chatbot_id)` on messages are
+      //    fragile when both sides have RLS; explicit two-step is reliable.
+      const { data: convs, error: convErr } = await supabase
+        .from('conversations')
+        .select('id')
+        .eq('chatbot_id', chatbotId);
+
+      if (convErr) {
+        console.error('[analytics] conversation fetch failed:', convErr);
+      }
+
+      const convIds = (convs ?? []).map((c) => c.id);
+
+      if (convIds.length === 0) {
+        if (!cancelled) {
+          setData({
+            totalMessages: 0,
+            escalationRate: '0',
+            unansweredCount: 0,
+            last7Days: Array.from({ length: 7 }, (_, i) => {
+              const d = new Date(Date.now() - (6 - i) * 86400000);
+              return { name: d.toLocaleDateString('en-US', { weekday: 'short' }).slice(0, 3), messages: 0 };
+            }),
+            topTopics: [],
+            topUnanswered: [],
+          });
+          setLoading(false);
         }
+        return;
+      }
 
-        const userMessages = messages.filter(m => m.role === 'user');
-        const topicCounts: Record<string, number> = {};
-        userMessages.forEach(m => {
-          const words = m.content.split(' ').slice(0, 5).join(' ');
-          topicCounts[words] = (topicCounts[words] || 0) + 1;
+      // 2. Now fetch all messages for those conversations in the window.
+      const { data: msgs, error: msgErr } = await supabase
+        .from('messages')
+        .select('id, conversation_id, role, content, was_escalated, created_at')
+        .in('conversation_id', convIds)
+        .gte('created_at', cutoff)
+        .order('created_at', { ascending: true });
+
+      if (msgErr) {
+        console.error('[analytics] message fetch failed:', msgErr);
+      }
+
+      const messages = (msgs ?? []) as unknown as Message[];
+
+      // Total = assistant replies (a "message" from the bot's POV)
+      const assistantMsgs = messages.filter((m) => m.role === 'assistant');
+      const userMsgs = messages.filter((m) => m.role === 'user');
+      const escalatedAssistant = assistantMsgs.filter((m) => m.was_escalated);
+      const totalMessages = assistantMsgs.length;
+      const escalationRate =
+        totalMessages > 0
+          ? ((escalatedAssistant.length / totalMessages) * 100).toFixed(1)
+          : '0';
+
+      // 7-day rollup of assistant message activity
+      const now = Date.now();
+      const last7Days: { name: string; messages: number }[] = [];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(now - i * 86400000);
+        const label = d.toLocaleDateString('en-US', { weekday: 'short' }).slice(0, 3);
+        const count = assistantMsgs.filter(
+          (m) => new Date(m.created_at).toDateString() === d.toDateString()
+        ).length;
+        last7Days.push({ name: label, messages: count });
+      }
+
+      // Top topics = first 5 words of each user message, clustered
+      const topicCounts: Record<string, number> = {};
+      for (const m of userMsgs) {
+        const words = m.content.trim().split(/\s+/).slice(0, 5).join(' ');
+        if (!words) continue;
+        topicCounts[words] = (topicCounts[words] ?? 0) + 1;
+      }
+      const topTopics = Object.entries(topicCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([name, count]) => ({
+          name: name.length > 30 ? name.slice(0, 30) + '...' : name,
+          count,
+        }));
+
+      // Top unanswered questions:
+      // was_escalated is set on the ASSISTANT message, but the actual
+      // question is the USER message that came right before it. We pair
+      // them by conversation + position to find the original question.
+      const byConv: Record<string, Message[]> = {};
+      for (const m of messages) {
+        (byConv[m.conversation_id] ||= []).push(m);
+      }
+      const unansweredQuestionCounts: Record<string, number> = {};
+      for (const list of Object.values(byConv)) {
+        for (let i = 1; i < list.length; i++) {
+          if (list[i].role === 'assistant' && list[i].was_escalated && list[i - 1].role === 'user') {
+            const key = list[i - 1].content.trim().slice(0, 80);
+            if (!key) continue;
+            unansweredQuestionCounts[key] = (unansweredQuestionCounts[key] ?? 0) + 1;
+          }
+        }
+      }
+      const topUnanswered = Object.entries(unansweredQuestionCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5) as [string, number][];
+
+      if (!cancelled) {
+        setData({
+          totalMessages,
+          escalationRate,
+          unansweredCount: escalatedAssistant.length,
+          last7Days,
+          topTopics,
+          topUnanswered,
         });
-        const topTopics = Object.entries(topicCounts)
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 5)
-          .map(([name, count]) => ({ name: name.length > 30 ? name.slice(0, 30) + '...' : name, count }));
+        setLoading(false);
+      }
+    })();
 
-        const escalatedUserMsgs = escalatedMsgs.filter(m => m.role === 'user');
-        const questionCounts: Record<string, number> = {};
-        escalatedUserMsgs.forEach(m => {
-          const key = m.content.slice(0, 60);
-          questionCounts[key] = (questionCounts[key] || 0) + 1;
-        });
-        const topUnanswered = Object.entries(questionCounts)
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 5);
+    return () => {
+      cancelled = true;
+    };
+  }, [chatbotId]);
 
-        setData({ totalMessages, escalationRate, unansweredCount: escalatedMsgs.length, last7Days, topTopics, topUnanswered });
-      });
-  }, [params.id]);
-
-  if (!data) return <div className="flex justify-center py-20"><Spinner className="animate-spin text-white/40" size={24} /></div>;
+  if (loading || !data) {
+    return (
+      <div className="flex justify-center py-20">
+        <Spinner className="animate-spin text-white/40" size={24} />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -136,7 +232,7 @@ export default function AnalyticsTab({ params }: { params: { id: string } }) {
             {data.topUnanswered.map(([q, count]) => (
               <div key={q} className="flex justify-between items-center p-3 bg-white/[0.02] rounded-lg border border-white/5">
                 <span className="text-sm font-medium text-white/80 truncate mr-4">{q}</span>
-                <span className="text-xs text-white/40 bg-white/5 px-2 py-1 rounded shrink-0">Asked {count} times</span>
+                <span className="text-xs text-white/40 bg-white/5 px-2 py-1 rounded shrink-0">Asked {count} {count === 1 ? 'time' : 'times'}</span>
               </div>
             ))}
           </div>
