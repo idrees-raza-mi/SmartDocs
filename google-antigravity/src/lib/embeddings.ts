@@ -70,40 +70,24 @@ export async function generateEmbedding(text: string): Promise<number[]> {
 }
 
 export async function batchGenerateEmbeddings(texts: string[]): Promise<number[][]> {
-  const model = gemini.getGenerativeModel({ model: MODELS.embedding });
+  // Gemini's batchEmbedContents endpoint is unreliable on v1beta (404s on
+  // some models). Individual embedContent calls work reliably. We run them
+  // in capped concurrent waves so a 100-chunk source still ingests quickly.
   const cleaned = texts.map((t) => t.replace(/\n/g, ' '));
+  const CONCURRENCY = 5;
+  const embeddings: number[][] = new Array(cleaned.length);
 
-  // Gemini supports batch embedContent — single API call for many inputs.
-  // Hard cap of 100 per request to stay well under the rate limit.
-  const batchSize = 100;
-  const embeddings: number[][] = [];
-
-  for (let i = 0; i < cleaned.length; i += batchSize) {
-    const batch = cleaned.slice(i, i + batchSize);
-    try {
-      const result = await model.batchEmbedContents({
-        requests: batch.map((text) => ({
-          content: { role: 'user', parts: [{ text }] },
-        })),
-      });
-      embeddings.push(...result.embeddings.map((e) => e.values));
-    } catch (err) {
-      if (isRetryableError(err)) {
-        // Back off and retry the whole batch once.
-        await new Promise((res) => setTimeout(res, 2000));
-        const retry = await model.batchEmbedContents({
-          requests: batch.map((text) => ({
-            content: { role: 'user', parts: [{ text }] },
-          })),
-        });
-        embeddings.push(...retry.embeddings.map((e) => e.values));
-      } else {
-        throw err;
-      }
+  for (let i = 0; i < cleaned.length; i += CONCURRENCY) {
+    const slice = cleaned.slice(i, i + CONCURRENCY);
+    const results = await Promise.all(slice.map((text) => generateEmbedding(text)));
+    for (let j = 0; j < results.length; j++) {
+      embeddings[i + j] = results[j];
     }
 
-    if (i + batchSize < cleaned.length) {
-      await new Promise((res) => setTimeout(res, 100));
+    // Tiny breather between waves so we stay well under the free-tier rate
+    // limit (1,500 RPM on text-embedding-004).
+    if (i + CONCURRENCY < cleaned.length) {
+      await new Promise((res) => setTimeout(res, 50));
     }
   }
 

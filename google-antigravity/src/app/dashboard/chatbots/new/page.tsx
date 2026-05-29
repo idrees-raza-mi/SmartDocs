@@ -19,12 +19,28 @@ export default function NewChatbotWizard() {
   const [name, setName] = useState('Support Agent');
   const [welcomeMessage, setWelcomeMessage] = useState("Hi! I'm trained on the full documentation. How can I help?");
   const [accentColor, setAccentColor] = useState('#ffffff');
+
+  // Step-2 source-input state. Tab determines which input is shown + which
+  // upload route runs after the chatbot is created.
+  type TrainTab = 'url' | 'pdf' | 'text';
+  const [trainTab, setTrainTab] = useState<TrainTab>('pdf');
   const [sourceUrl, setSourceUrl] = useState('');
+  const [trainFile, setTrainFile] = useState<File | null>(null);
+  const [textName, setTextName] = useState('');
+  const [textBody, setTextBody] = useState('');
 
   const router = useRouter();
   const supabase = createClient();
-  const { getLimit } = usePlanAccess();
+  const { plan, getLimit } = usePlanAccess();
   const { show } = usePremiumPopup();
+
+  // URL ingestion is paid-tier only — same gate as the Sources page.
+  const canUseUrlSources = plan === 'starter' || plan === 'pro' || plan === 'business';
+
+  // If the active tab isn't allowed on this plan, snap to PDF.
+  useEffect(() => {
+    if (!canUseUrlSources && trainTab === 'url') setTrainTab('pdf');
+  }, [canUseUrlSources, trainTab]);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -69,12 +85,29 @@ export default function NewChatbotWizard() {
 
       setChatbotId(chatbot.id);
 
-      if (sourceUrl.trim()) {
-        await fetch('/api/ingest/url', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ chatbotId: chatbot.id, url: sourceUrl.trim() }),
-        });
+      // Ingest the initial source if the user filled one in. Errors here
+      // don't block the wizard — the user can re-try from the Sources tab.
+      try {
+        if (trainTab === 'url' && canUseUrlSources && sourceUrl.trim()) {
+          await fetch('/api/ingest/url', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatbotId: chatbot.id, url: sourceUrl.trim() }),
+          });
+        } else if (trainTab === 'pdf' && trainFile) {
+          const fd = new FormData();
+          fd.append('file', trainFile);
+          fd.append('chatbotId', chatbot.id);
+          await fetch('/api/ingest/pdf', { method: 'POST', body: fd });
+        } else if (trainTab === 'text' && textName.trim() && textBody.trim()) {
+          await fetch('/api/ingest/text', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chatbotId: chatbot.id, name: textName.trim(), content: textBody }),
+          });
+        }
+      } catch (ingestErr) {
+        console.warn('[wizard] initial source ingest failed:', ingestErr);
       }
 
       setStep(3);
@@ -183,23 +216,115 @@ export default function NewChatbotWizard() {
             
             <div className="border border-white/10 rounded-xl overflow-hidden mb-10 bg-black">
               <div className="flex border-b border-white/10 bg-white/[0.02]">
-                {['Website URL', 'Upload PDF', 'Raw Text'].map((t, i) => (
-                  <button key={t} className={clsx("flex-1 py-4 text-sm font-bold tracking-wide transition-colors",
-                    i === 0 ? "border-b-2 border-white text-white" : "text-white/40 hover:text-white/70"
-                  )}>{t}</button>
+                {(
+                  [
+                    { key: 'url' as const, label: 'Website URL', locked: !canUseUrlSources },
+                    { key: 'pdf' as const, label: 'Upload PDF', locked: false },
+                    { key: 'text' as const, label: 'Raw Text', locked: false },
+                  ]
+                ).map((t) => (
+                  <button
+                    key={t.key}
+                    onClick={() => {
+                      if (t.locked) {
+                        show('Website URL ingestion', 'Starter');
+                        return;
+                      }
+                      setTrainTab(t.key);
+                    }}
+                    className={clsx(
+                      'flex-1 py-4 text-sm font-bold tracking-wide transition-colors flex items-center justify-center gap-1.5',
+                      trainTab === t.key
+                        ? 'border-b-2 border-white text-white'
+                        : t.locked
+                          ? 'text-white/30'
+                          : 'text-white/40 hover:text-white/70'
+                    )}
+                  >
+                    {t.label}
+                    {t.locked && <span className="text-[10px] text-amber-400/80">✦</span>}
+                  </button>
                 ))}
               </div>
+
               <div className="p-8">
-                <label className="block text-xs font-bold text-white/50 uppercase tracking-wider mb-3">URL to Scrape</label>
-                <div className="flex gap-3">
-                  <input type="url" value={sourceUrl} onChange={(e) => setSourceUrl(e.target.value)} placeholder="https://example.com/docs"
-                    className="flex-1 px-4 py-3 border border-white/10 rounded-lg focus:outline-none focus:ring-1 focus:ring-white/30 bg-white/[0.02] text-white placeholder-white/20 text-sm transition-all" />
-                  <button onClick={handleCreate} disabled={loading}
-                    className="px-8 py-3 bg-white text-black rounded-lg font-bold hover:bg-gray-200 transition-colors shrink-0 disabled:opacity-50">
-                    {loading ? <Spinner className="animate-spin" size={18} /> : 'Sync'}
-                  </button>
-                </div>
-                <p className="text-xs text-white/30 mt-3">We'll scrape the page and all linked sub-pages automatically.</p>
+                {trainTab === 'url' && (
+                  <>
+                    <label className="block text-xs font-bold text-white/50 uppercase tracking-wider mb-3">URL to Scrape</label>
+                    <div className="flex gap-3">
+                      <input
+                        type="url"
+                        value={sourceUrl}
+                        onChange={(e) => setSourceUrl(e.target.value)}
+                        placeholder="https://example.com/docs"
+                        className="flex-1 px-4 py-3 border border-white/10 rounded-lg focus:outline-none focus:ring-1 focus:ring-white/30 bg-white/[0.02] text-white placeholder-white/20 text-sm transition-all"
+                      />
+                      <button
+                        onClick={handleCreate}
+                        disabled={loading}
+                        className="px-8 py-3 bg-white text-black rounded-lg font-bold hover:bg-gray-200 transition-colors shrink-0 disabled:opacity-50"
+                      >
+                        {loading ? <Spinner className="animate-spin" size={18} /> : 'Sync'}
+                      </button>
+                    </div>
+                    <p className="text-xs text-white/30 mt-3">We&apos;ll scrape the page and all linked sub-pages automatically.</p>
+                  </>
+                )}
+
+                {trainTab === 'pdf' && (
+                  <>
+                    <label className="block text-xs font-bold text-white/50 uppercase tracking-wider mb-3">Upload Document</label>
+                    <div className="flex gap-3 items-start">
+                      <input
+                        type="file"
+                        accept=".pdf,.docx,.txt,.md,.csv,.json"
+                        onChange={(e) => setTrainFile(e.target.files?.[0] ?? null)}
+                        className="flex-1 text-sm text-white/70 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-white file:text-black hover:file:bg-gray-200 file:cursor-pointer py-3"
+                      />
+                      <button
+                        onClick={handleCreate}
+                        disabled={loading || !trainFile}
+                        className="px-8 py-3 bg-white text-black rounded-lg font-bold hover:bg-gray-200 transition-colors shrink-0 disabled:opacity-50"
+                      >
+                        {loading ? <Spinner className="animate-spin" size={18} /> : 'Upload'}
+                      </button>
+                    </div>
+                    <p className="text-xs text-white/30 mt-3">PDF, DOCX, TXT, Markdown, CSV, or JSON — up to 25 MB.</p>
+                  </>
+                )}
+
+                {trainTab === 'text' && (
+                  <>
+                    <label className="block text-xs font-bold text-white/50 uppercase tracking-wider mb-3">Raw Text Content</label>
+                    <input
+                      type="text"
+                      value={textName}
+                      onChange={(e) => setTextName(e.target.value)}
+                      placeholder="Source name (e.g. FAQ)"
+                      className="w-full px-4 py-3 border border-white/10 rounded-lg focus:outline-none focus:ring-1 focus:ring-white/30 bg-white/[0.02] text-white placeholder-white/20 text-sm transition-all mb-3"
+                    />
+                    <textarea
+                      rows={5}
+                      value={textBody}
+                      onChange={(e) => setTextBody(e.target.value)}
+                      placeholder="Paste raw text content here..."
+                      className="w-full px-4 py-3 border border-white/10 rounded-lg focus:outline-none focus:ring-1 focus:ring-white/30 bg-white/[0.02] text-white placeholder-white/20 text-sm transition-all mb-3"
+                    />
+                    <button
+                      onClick={handleCreate}
+                      disabled={loading || !textName.trim() || !textBody.trim()}
+                      className="px-8 py-3 bg-white text-black rounded-lg font-bold hover:bg-gray-200 transition-colors disabled:opacity-50"
+                    >
+                      {loading ? <Spinner className="animate-spin" size={18} /> : 'Add Text Source'}
+                    </button>
+                  </>
+                )}
+
+                {!canUseUrlSources && trainTab !== 'url' && (
+                  <p className="text-xs text-amber-200/70 mt-4 bg-amber-500/5 border border-amber-500/20 rounded-lg px-3 py-2">
+                    Website URL crawling is part of the Starter plan and above. On Free and Trial, upload a file or paste text.
+                  </p>
+                )}
               </div>
             </div>
 
