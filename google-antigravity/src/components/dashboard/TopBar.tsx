@@ -4,8 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { ThemeToggle } from '@/components/ui/ThemeToggle';
-import { CaretDown, SignOut, User, CreditCard, Gear, MagnifyingGlass } from '@phosphor-icons/react';
+import { CaretDown, SignOut, User, CreditCard, Gear } from '@phosphor-icons/react';
 import clsx from 'clsx';
 
 type Profile = {
@@ -96,21 +95,6 @@ export const TopBar = () => {
       </div>
 
       <div className="flex items-center gap-3">
-        <button
-          className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 hover:border-white/20 rounded-lg text-xs text-white/40 hover:text-white/60 transition-colors"
-          onClick={() => {
-            const ev = new CustomEvent('dw:open-search');
-            window.dispatchEvent(ev);
-          }}
-          aria-label="Open search"
-        >
-          <MagnifyingGlass size={14} />
-          <span>Search</span>
-          <kbd className="hidden lg:inline-block ml-2 px-1.5 py-0.5 text-[10px] bg-white/10 rounded font-mono">/</kbd>
-        </button>
-
-        <ThemeToggle />
-
         <Link
           href="/dashboard/billing"
           className={clsx(

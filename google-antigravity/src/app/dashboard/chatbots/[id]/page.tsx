@@ -29,8 +29,20 @@ export default function SourcesTab({ params }: { params: Promise<{ id: string }>
   const [error, setError] = useState<string | null>(null);
 
   const supabase = createClient();
-  const { getLimit, checkAccess } = usePlanAccess();
+  const { plan, getLimit, checkAccess } = usePlanAccess();
   const { show } = usePremiumPopup();
+
+  // URL + Sitemap ingestion is only available on paid plans. Free and trial
+  // users can upload files or paste text — this keeps OpenAI embedding spend
+  // proportional to plan revenue and prevents abuse by scraping unrelated sites.
+  const canUseUrlSources = plan === 'starter' || plan === 'pro' || plan === 'business';
+
+  // If the plan doesn't allow URL/sitemap, snap the active tab to 'file'.
+  useEffect(() => {
+    if (!canUseUrlSources && (tab === 'url' || tab === 'sitemap')) {
+      setTab('file');
+    }
+  }, [canUseUrlSources, tab]);
 
   const refresh = useCallback(async () => {
     const { data } = await supabase
@@ -301,7 +313,10 @@ export default function SourcesTab({ params }: { params: Promise<{ id: string }>
             </div>
             <div className="p-6">
               <div className="flex border-b border-white/10 mb-6 overflow-x-auto">
-                {(['url', 'file', 'text', 'sitemap'] as Tab[]).map((t) => (
+                {(canUseUrlSources
+                  ? (['url', 'file', 'text', 'sitemap'] as Tab[])
+                  : (['file', 'text'] as Tab[])
+                ).map((t) => (
                   <button
                     key={t}
                     onClick={() => { setTab(t); setError(null); }}
@@ -314,6 +329,12 @@ export default function SourcesTab({ params }: { params: Promise<{ id: string }>
                   </button>
                 ))}
               </div>
+
+              {!canUseUrlSources && (
+                <div className="mb-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg text-xs text-amber-200">
+                  URL and Sitemap ingestion are part of the Starter plan and above. On Free and Trial, upload files or paste raw text.
+                </div>
+              )}
 
               {error && (
                 <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center gap-3 text-red-400 text-sm">

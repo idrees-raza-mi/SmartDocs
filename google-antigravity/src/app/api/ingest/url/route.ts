@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { parseUrl } from '@/lib/parsers/url';
 import { chunkText, batchGenerateEmbeddings } from '@/lib/embeddings';
+import { effectivePlan } from '@/lib/plan';
 
 export async function POST(req: Request) {
   let sourceId: string | null = null;
@@ -10,6 +11,24 @@ export async function POST(req: Request) {
 
     if (!chatbotId || !url) {
       return NextResponse.json({ error: 'Missing chatbotId or url' }, { status: 400 });
+    }
+
+    // Plan gate: URL ingestion is paid-tier only.
+    const { data: planRow } = await supabaseAdmin
+      .from('chatbots')
+      .select('organizations(plan, trial_ends_at)')
+      .eq('id', chatbotId)
+      .single();
+    const orgs = planRow?.organizations as { plan?: string; trial_ends_at?: string | null } | { plan?: string; trial_ends_at?: string | null }[] | null;
+    const org = Array.isArray(orgs) ? orgs[0] : orgs;
+    if (org) {
+      const plan = effectivePlan({ plan: org.plan ?? 'free', trial_ends_at: org.trial_ends_at ?? null });
+      if (plan === 'free' || plan === 'trial') {
+        return NextResponse.json(
+          { error: 'URL ingestion requires the Starter plan or above. Upload a file or paste text instead.' },
+          { status: 403 }
+        );
+      }
     }
 
     const { data: existing } = await supabaseAdmin
