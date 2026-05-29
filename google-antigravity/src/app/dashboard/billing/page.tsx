@@ -129,7 +129,7 @@ function BillingPageInner() {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
 
-    const res = await fetch('/api/stripe/checkout', {
+    const res = await fetch('/api/lemonsqueezy/checkout', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

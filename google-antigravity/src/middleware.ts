@@ -22,6 +22,7 @@ function isPublicPath(pathname: string) {
     pathname.startsWith('/api/chat') ||
     pathname.startsWith('/api/v1') ||
     pathname.startsWith('/api/stripe/webhook') ||
+    pathname.startsWith('/api/lemonsqueezy/webhook') ||
     pathname.startsWith('/api/cron') ||
     pathname.startsWith('/api/health') ||
     pathname.startsWith('/api/leads') ||
