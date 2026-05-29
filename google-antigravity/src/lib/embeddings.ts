@@ -115,10 +115,14 @@ export async function batchGenerateEmbeddings(texts: string[]): Promise<number[]
 }
 
 export async function searchSimilarChunks(chatbotId: string, queryEmbedding: number[], limit = 5) {
+  // Threshold tuned for Gemini embeddings (gemini-embedding-001 + 768-dim).
+  // Gemini's cosine similarity scores typically peak around 0.5-0.7 for
+  // strong semantic matches (vs 0.8-0.9 for OpenAI). A 0.3 floor still
+  // filters out clearly unrelated chunks while letting good matches through.
   const { data, error } = await supabaseAdmin.rpc('match_chunks', {
     query_embedding: queryEmbedding,
     chatbot_id_filter: chatbotId,
-    match_threshold: 0.7,
+    match_threshold: 0.3,
     match_count: limit,
   });
 

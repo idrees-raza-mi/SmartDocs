@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { gemini, MODELS } from '@/lib/llm';
+import { gemini, MODELS, CHAT_MODEL_FALLBACKS } from '@/lib/llm';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { generateEmbedding, searchSimilarChunks } from '@/lib/embeddings';
 import { PLAN_LIMITS, type PlanType } from '@/lib/constants';
@@ -172,6 +172,7 @@ export async function POST(req: Request) {
     const topSimilarity: number | null = chunks.length > 0
       ? Math.max(...chunks.map((c: { similarity?: number }) => c.similarity ?? 0))
       : null;
+    console.log(`[chat] retrieved ${chunks.length} chunks (top similarity: ${topSimilarity?.toFixed?.(3) ?? 'n/a'}) for "${message.slice(0, 60)}"`);
 
     const promptContext = chunks.length === 0
       ? 'No relevant context found.'
@@ -206,14 +207,37 @@ ${promptContext}`;
       { role: 'user', parts: [{ text: message }] },
     ];
 
-    const streamResult = await gemini.models.generateContentStream({
-      model: MODELS.chat,
-      contents: conversationContents,
-      config: {
-        systemInstruction: systemPrompt,
-        temperature: 0.3,
-      },
-    });
+    // Try the primary model, then fall back through CHAT_MODEL_FALLBACKS if
+    // Google has deprecated it or it isn't on this account's free tier.
+    // 404 = model not found, 429 with limit:0 = paid-tier-only.
+    const candidateModels = [MODELS.chat, ...CHAT_MODEL_FALLBACKS.filter((m) => m !== MODELS.chat)];
+    let streamResult: Awaited<ReturnType<typeof gemini.models.generateContentStream>> | null = null;
+    let lastErr: unknown = null;
+    for (const candidate of candidateModels) {
+      try {
+        streamResult = await gemini.models.generateContentStream({
+          model: candidate,
+          contents: conversationContents,
+          config: {
+            systemInstruction: systemPrompt,
+            temperature: 0.3,
+          },
+        });
+        break;
+      } catch (err) {
+        lastErr = err;
+        const msg = err instanceof Error ? err.message.toLowerCase() : '';
+        // 404 not found OR 429 with limit:0 → try next fallback. Other
+        // errors (auth, network) propagate immediately so we don't burn
+        // through the whole fallback list on a permanent failure.
+        if (msg.includes('404') || msg.includes('not found') || (msg.includes('429') && msg.includes('limit: 0'))) {
+          console.warn(`[chat] model ${candidate} unavailable, trying next fallback`);
+          continue;
+        }
+        throw err;
+      }
+    }
+    if (!streamResult) throw lastErr ?? new Error('All chat models unavailable');
 
     const stream = new ReadableStream({
       async start(controller) {
