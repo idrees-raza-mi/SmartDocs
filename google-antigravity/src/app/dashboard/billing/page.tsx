@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { PLAN_LIMITS, PLAN_PRICES, PlanType } from '@/lib/constants';
@@ -8,6 +8,14 @@ import type { Organization } from '@/types/chatbot';
 import { CheckCircle, WarningCircle } from '@phosphor-icons/react';
 
 export default function BillingPage() {
+  return (
+    <Suspense fallback={null}>
+      <BillingPageInner />
+    </Suspense>
+  );
+}
+
+function BillingPageInner() {
   const searchParams = useSearchParams();
   const supabase = createClient();
 
