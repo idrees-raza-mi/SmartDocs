@@ -24,7 +24,7 @@ export const Footer = () => {
           <h4 className="font-bold text-white mb-6 text-xs uppercase tracking-widest">Company</h4>
           <ul className="space-y-4">
             <li><Link href="/#faq" className="text-white/50 hover:text-white transition-colors text-sm">FAQ</Link></li>
-            <li><a href="mailto:hello@smartdocs.ai" className="text-white/50 hover:text-white transition-colors text-sm">Contact</a></li>
+            <li><a href="mailto:hello@docwise.ai" className="text-white/50 hover:text-white transition-colors text-sm">Contact</a></li>
             <li><a href="https://github.com" className="text-white/50 hover:text-white transition-colors text-sm" target="_blank" rel="noopener">GitHub</a></li>
             <li><Link href="/api/health" className="text-white/50 hover:text-white transition-colors text-sm">Status</Link></li>
           </ul>
@@ -38,7 +38,7 @@ export const Footer = () => {
         </div>
       </div>
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between pt-8 border-t border-white/5 text-sm text-white/30">
-        <div>© {new Date().getFullYear()} SmartDocs AI. All rights reserved.</div>
+        <div>© {new Date().getFullYear()} DocWise AI. All rights reserved.</div>
         <div className="mt-4 md:mt-0">Wisdom, automated.</div>
       </div>
     </footer>

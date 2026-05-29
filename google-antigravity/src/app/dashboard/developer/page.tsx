@@ -192,7 +192,7 @@ export default function DeveloperPage() {
         <h2 className="font-bold text-white mb-2">Quick start</h2>
         <p className="text-sm text-white/50 mb-4">Send a message via the REST API:</p>
         <pre className="bg-black border border-white/10 rounded-lg p-4 text-xs text-white/80 overflow-x-auto"><code>{`curl -X POST https://YOUR-APP.com/api/v1/chat \\
-  -H "Authorization: Bearer sd_live_..." \\
+  -H "Authorization: Bearer dw_live_..." \\
   -H "Content-Type: application/json" \\
   -d '{"chatbotId":"<UUID>","message":"Hello","sessionId":"<id>"}'`}</code></pre>
       </div>

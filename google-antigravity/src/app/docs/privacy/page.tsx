@@ -1,6 +1,6 @@
 import { DocHeader, P, Section, UL, Code, Callout, NextPrev } from '../_components/DocComponents';
 
-export const metadata = { title: 'Privacy & data — SmartDocs Docs' };
+export const metadata = { title: 'Privacy & data — DocWise Docs' };
 
 export default function PrivacyDocs() {
   return (
@@ -52,7 +52,7 @@ export default function PrivacyDocs() {
       </Section>
 
       <Section title="Visitor data">
-        <P>End users who chat with your bot are not registered SmartDocs users. We store their conversation content under the chatbot owner&apos;s organization. Owners are responsible for surfacing the GDPR consent banner (configurable per chatbot) to comply with EU regulations.</P>
+        <P>End users who chat with your bot are not registered DocWise users. We store their conversation content under the chatbot owner&apos;s organization. Owners are responsible for surfacing the GDPR consent banner (configurable per chatbot) to comply with EU regulations.</P>
       </Section>
 
       <Callout tone="info" title="Data retention">

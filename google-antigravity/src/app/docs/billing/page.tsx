@@ -1,6 +1,6 @@
 import { DocHeader, P, Section, UL, Code, Callout, NextPrev } from '../_components/DocComponents';
 
-export const metadata = { title: 'Plans & billing — SmartDocs Docs' };
+export const metadata = { title: 'Plans & billing — DocWise Docs' };
 
 export default function BillingDocs() {
   return (

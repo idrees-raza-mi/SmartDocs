@@ -1,6 +1,6 @@
 import { DocHeader, P, Section, CodeBlock, Code, Callout, NextPrev } from '../../_components/DocComponents';
 
-export const metadata = { title: 'Embed snippet — SmartDocs Docs' };
+export const metadata = { title: 'Embed snippet — DocWise Docs' };
 
 export default function EmbedDocs() {
   return (
@@ -8,7 +8,7 @@ export default function EmbedDocs() {
       <DocHeader
         eyebrow="Widget"
         title="Embed snippet"
-        lead="One line of HTML adds the SmartDocs chat bubble to any website."
+        lead="One line of HTML adds the DocWise chat bubble to any website."
       />
 
       <Section title="The snippet">

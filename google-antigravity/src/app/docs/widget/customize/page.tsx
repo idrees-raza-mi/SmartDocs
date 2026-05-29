@@ -1,6 +1,6 @@
 import { DocHeader, P, Section, UL, Code, Callout, NextPrev } from '../../_components/DocComponents';
 
-export const metadata = { title: 'Customize widget — SmartDocs Docs' };
+export const metadata = { title: 'Customize widget — DocWise Docs' };
 
 export default function CustomizeDocs() {
   return (
@@ -16,7 +16,7 @@ export default function CustomizeDocs() {
         <UL>
           <li><b>Accent color.</b> Used for the bubble, header, send button, and user-message bubbles. Foreground text color is auto-computed for contrast.</li>
           <li><b>Widget position.</b> Bottom-right (default) or bottom-left.</li>
-          <li><b>Branding badge.</b> &ldquo;Powered by SmartDocs&rdquo; appears at the bottom of the widget on trial and Starter plans. Pro and Business plans can hide it from the <Code>Settings</Code> tab.</li>
+          <li><b>Branding badge.</b> &ldquo;Powered by DocWise&rdquo; appears at the bottom of the widget on trial and Starter plans. Pro and Business plans can hide it from the <Code>Settings</Code> tab.</li>
         </UL>
       </Section>
 

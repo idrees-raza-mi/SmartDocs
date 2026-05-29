@@ -1,6 +1,6 @@
 import { DocHeader, P, Section, UL, Code, Callout, NextPrev } from '../_components/DocComponents';
 
-export const metadata = { title: 'Troubleshooting — SmartDocs Docs' };
+export const metadata = { title: 'Troubleshooting — DocWise Docs' };
 
 export default function TroubleshootingDocs() {
   return (
@@ -64,7 +64,7 @@ export default function TroubleshootingDocs() {
       </Section>
 
       <Callout tone="info" title="Still stuck?">
-        Email <a href="mailto:support@smartdocs.ai" className="text-white underline">support@smartdocs.ai</a> with the chatbot ID, what you expected, and what happened. Business plan customers get priority support with a 4-hour response SLA during business hours.
+        Email <a href="mailto:support@docwise.ai" className="text-white underline">support@docwise.ai</a> with the chatbot ID, what you expected, and what happened. Business plan customers get priority support with a 4-hour response SLA during business hours.
       </Callout>
 
       <NextPrev prev={{ href: '/docs/privacy', label: 'Privacy & data' }} />

@@ -1,6 +1,6 @@
 import { DocHeader, P, Section, UL, Code, Callout, NextPrev } from '../../_components/DocComponents';
 
-export const metadata = { title: 'Auto re-sync — SmartDocs Docs' };
+export const metadata = { title: 'Auto re-sync — DocWise Docs' };
 
 export default function SyncDocs() {
   return (

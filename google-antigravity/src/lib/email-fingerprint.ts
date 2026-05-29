@@ -54,6 +54,6 @@ export function normalizeEmail(email: string): string {
  */
 export function emailFingerprint(email: string): string {
   const normalized = normalizeEmail(email);
-  const salt = process.env.EMAIL_FINGERPRINT_SALT || 'smartdocs-default-salt-change-me';
+  const salt = process.env.EMAIL_FINGERPRINT_SALT || 'docwise-default-salt-change-me';
   return createHash('sha256').update(`${salt}::${normalized}`).digest('hex');
 }

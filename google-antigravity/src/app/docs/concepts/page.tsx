@@ -1,6 +1,6 @@
 import { DocHeader, P, Section, UL, NextPrev, CodeBlock, Code, Callout } from '../_components/DocComponents';
 
-export const metadata = { title: 'How it works — SmartDocs Docs' };
+export const metadata = { title: 'How it works — DocWise Docs' };
 
 export default function Concepts() {
   return (
@@ -8,7 +8,7 @@ export default function Concepts() {
       <DocHeader
         eyebrow="Getting started"
         title="How it works"
-        lead="SmartDocs uses retrieval-augmented generation (RAG). The bot only answers from your own knowledge — never from its general training data."
+        lead="DocWise uses retrieval-augmented generation (RAG). The bot only answers from your own knowledge — never from its general training data."
       />
 
       <Section title="The pipeline">
@@ -25,7 +25,7 @@ export default function Concepts() {
 
       <Section title="Why this beats raw LLM answers">
         <P>Off-the-shelf LLMs hallucinate. They will confidently invent product features that don&apos;t exist or pricing that&apos;s out of date.</P>
-        <P>SmartDocs forces the model to either find an answer in your sources or say &ldquo;I don&apos;t know&rdquo; — there is no third option. The bot will explicitly tag itself with <Code>[ESCALATE]</Code> when it can&apos;t help, which the system uses to route the conversation to a human (or to the Review Queue for later answering).</P>
+        <P>DocWise forces the model to either find an answer in your sources or say &ldquo;I don&apos;t know&rdquo; — there is no third option. The bot will explicitly tag itself with <Code>[ESCALATE]</Code> when it can&apos;t help, which the system uses to route the conversation to a human (or to the Review Queue for later answering).</P>
       </Section>
 
       <Section title="Conversation memory">
@@ -37,8 +37,8 @@ export default function Concepts() {
         <P>The chat endpoint streams plain text, then sends a trailing JSON metadata frame the widget parses to render citations and follow-up suggestions:</P>
         <CodeBlock lang="example response stream">{`Hello! That feature was launched in v2.4.
 
-__SMARTDOCS_META__{"sources":["changelog.md"],"escalated":false}`}</CodeBlock>
-        <P>If you build a custom integration, look for the <Code>__SMARTDOCS_META__</Code> marker and parse everything after it as JSON.</P>
+__DOCWISE_META__{"sources":["changelog.md"],"escalated":false}`}</CodeBlock>
+        <P>If you build a custom integration, look for the <Code>__DOCWISE_META__</Code> marker and parse everything after it as JSON.</P>
       </Section>
 
       <Callout tone="info" title="Confidence scoring">

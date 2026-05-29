@@ -1,6 +1,6 @@
 import { DocHeader, P, Section, Steps, Step, CodeBlock, Code, Callout, NextPrev } from '../_components/DocComponents';
 
-export const metadata = { title: 'Slack & Discord notifications — SmartDocs Docs' };
+export const metadata = { title: 'Slack & Discord notifications — DocWise Docs' };
 
 export default function NotificationsDocs() {
   return (

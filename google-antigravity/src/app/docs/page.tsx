@@ -1,18 +1,18 @@
 import { DocHeader, P, CardGrid, Card, NextPrev, Callout } from './_components/DocComponents';
 
-export const metadata = { title: 'Introduction — SmartDocs Docs' };
+export const metadata = { title: 'Introduction — DocWise Docs' };
 
 export default function DocsIntro() {
   return (
     <>
       <DocHeader
         eyebrow="Getting started"
-        title="Welcome to SmartDocs"
-        lead="SmartDocs turns your documentation into an AI agent your customers can talk to. This guide walks through everything from your first chatbot to advanced API integrations."
+        title="Welcome to DocWise"
+        lead="DocWise turns your documentation into an AI agent your customers can talk to. This guide walks through everything from your first chatbot to advanced API integrations."
       />
 
       <P>
-        SmartDocs is a production-grade chatbot platform that ingests your knowledge sources, generates vector embeddings,
+        DocWise is a production-grade chatbot platform that ingests your knowledge sources, generates vector embeddings,
         and serves a strictly source-grounded conversational interface — embeddable on any website with one script tag.
         It never invents facts: if the answer is not in your sources, the bot says so and offers to escalate.
       </P>

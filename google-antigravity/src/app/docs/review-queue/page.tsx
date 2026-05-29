@@ -1,6 +1,6 @@
 import { DocHeader, P, Section, Steps, Step, Callout, NextPrev } from '../_components/DocComponents';
 
-export const metadata = { title: 'Review queue — SmartDocs Docs' };
+export const metadata = { title: 'Review queue — DocWise Docs' };
 
 export default function ReviewQueueDocs() {
   return (
@@ -13,7 +13,7 @@ export default function ReviewQueueDocs() {
 
       <P>
         When the bot can&apos;t answer a question, it escalates and the question lands in your Review Queue. You write the
-        correct answer once; SmartDocs converts it into a new knowledge source and your bot uses it from the very next chat onward.
+        correct answer once; DocWise converts it into a new knowledge source and your bot uses it from the very next chat onward.
       </P>
 
       <Section title="How questions get queued">
@@ -29,7 +29,7 @@ export default function ReviewQueueDocs() {
             A text area opens. Write the correct response — markdown is supported.
           </Step>
           <Step n={3} title="Click 'Save & retrain'">
-            SmartDocs creates a new Text source named &ldquo;Q: ...&rdquo; with content <code className="bg-white/10 text-amber-200 px-1 rounded">Q: question\nA: answer</code>, embeds it, and marks the question resolved.
+            DocWise creates a new Text source named &ldquo;Q: ...&rdquo; with content <code className="bg-white/10 text-amber-200 px-1 rounded">Q: question\nA: answer</code>, embeds it, and marks the question resolved.
           </Step>
         </Steps>
         <P>The whole loop usually completes in under 3 seconds. The next visitor who asks something similar gets your answer.</P>

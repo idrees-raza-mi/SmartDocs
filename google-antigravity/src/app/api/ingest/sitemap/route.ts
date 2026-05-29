@@ -110,7 +110,7 @@ export async function POST(req: Request) {
     // Fetch sitemap.xml
     let xml: string;
     try {
-      const res = await fetch(sitemapUrl, { headers: { 'User-Agent': 'SmartDocs-Crawler/1.0' } });
+      const res = await fetch(sitemapUrl, { headers: { 'User-Agent': 'DocWise-Crawler/1.0' } });
       if (!res.ok) throw new Error(`Sitemap returned ${res.status}`);
       xml = await res.text();
     } catch (e) {

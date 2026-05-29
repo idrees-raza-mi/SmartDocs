@@ -48,7 +48,7 @@ export const FAQ = () => {
         <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight text-center mb-3">
           Frequently asked
         </h2>
-        <p className="text-white/50 text-center mb-12">Don&apos;t see your question? <a href="mailto:hello@smartdocs.ai" className="text-white hover:underline">Email us</a>.</p>
+        <p className="text-white/50 text-center mb-12">Don&apos;t see your question? <a href="mailto:hello@docwise.ai" className="text-white hover:underline">Email us</a>.</p>
 
         <div className="space-y-3">
           {FAQS.map((item, i) => {

@@ -1,6 +1,6 @@
 import { resend } from '@/lib/resend';
 
-const FROM = 'SmartDocs <noreply@smartdocs.ai>';
+const FROM = 'DocWise <noreply@docwise.ai>';
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
 function wrap(title: string, body: string) {
@@ -10,7 +10,7 @@ function wrap(title: string, body: string) {
     <div style="font-size: 22px; font-weight: 700; color: #0a0a0a; margin-bottom: 16px;">${title}</div>
     ${body}
     <div style="margin-top: 32px; padding-top: 16px; border-top: 1px solid #eee; font-size: 12px; color: #888;">
-      SmartDocs &middot; <a href="${APP_URL}" style="color: #888;">${APP_URL.replace(/^https?:\/\//, '')}</a>
+      DocWise &middot; <a href="${APP_URL}" style="color: #888;">${APP_URL.replace(/^https?:\/\//, '')}</a>
     </div>
   </div>
 </body></html>`;
@@ -20,7 +20,7 @@ export async function sendWelcomeEmail(to: string, name: string | null) {
   return resend.emails.send({
     from: FROM,
     to,
-    subject: 'Welcome to SmartDocs',
+    subject: 'Welcome to DocWise',
     html: wrap(
       `Welcome${name ? `, ${name}` : ''} 👋`,
       `
@@ -42,7 +42,7 @@ export async function sendTrialEndingEmail(to: string, daysLeft: number, name: s
   return resend.emails.send({
     from: FROM,
     to,
-    subject: daysLeft <= 1 ? 'Your SmartDocs trial ends soon' : `${daysLeft} days left on your SmartDocs trial`,
+    subject: daysLeft <= 1 ? 'Your DocWise trial ends soon' : `${daysLeft} days left on your DocWise trial`,
     html: wrap(
       daysLeft <= 1 ? 'Your trial is about to end' : `${daysLeft} days left`,
       `
@@ -88,7 +88,7 @@ export async function sendPaymentFailedEmail(to: string, name: string | null) {
   return resend.emails.send({
     from: FROM,
     to,
-    subject: 'Action required: SmartDocs payment failed',
+    subject: 'Action required: DocWise payment failed',
     html: wrap(
       'Payment failed',
       `

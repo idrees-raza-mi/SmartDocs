@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Logo } from '@/components/ui/Logo';
 
-export const metadata = { title: 'Changelog — SmartDocs' };
+export const metadata = { title: 'Changelog — DocWise' };
 
 const ENTRIES = [
   {
@@ -39,7 +39,7 @@ export default function ChangelogPage() {
       </nav>
       <article className="max-w-3xl mx-auto py-16 px-6">
         <h1 className="text-3xl font-bold tracking-tight mb-2">Changelog</h1>
-        <p className="text-white/40 mb-12">What&apos;s new in SmartDocs.</p>
+        <p className="text-white/40 mb-12">What&apos;s new in DocWise.</p>
 
         <div className="space-y-8">
           {ENTRIES.map((e, i) => (

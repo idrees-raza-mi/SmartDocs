@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Logo } from '@/components/ui/Logo';
 
-export const metadata = { title: 'Privacy Policy — SmartDocs' };
+export const metadata = { title: 'Privacy Policy — DocWise' };
 
 export default function PrivacyPage() {
   return (
@@ -35,7 +35,7 @@ export default function PrivacyPage() {
         <p>You can export or delete all your data at any time from <Link href="/dashboard/profile" className="text-white underline">/dashboard/profile</Link>. GDPR and CCPA requests are honored within 30 days.</p>
 
         <h2>Contact</h2>
-        <p>Privacy questions: <a href="mailto:privacy@smartdocs.ai" className="text-white underline">privacy@smartdocs.ai</a></p>
+        <p>Privacy questions: <a href="mailto:privacy@docwise.ai" className="text-white underline">privacy@docwise.ai</a></p>
       </article>
     </div>
   );

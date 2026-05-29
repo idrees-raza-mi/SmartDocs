@@ -241,9 +241,9 @@ ${promptContext}`;
         }
 
         // Trailing JSON metadata frame for the widget to parse citations + escalation flag.
-        // Format: "\n\n__SMARTDOCS_META__" + JSON
+        // Format: "\n\n__DOCWISE_META__" + JSON
         const meta = JSON.stringify({ sources: sourceNames, escalated: wasEscalated });
-        controller.enqueue(new TextEncoder().encode(`\n\n__SMARTDOCS_META__${meta}`));
+        controller.enqueue(new TextEncoder().encode(`\n\n__DOCWISE_META__${meta}`));
 
         controller.close();
 

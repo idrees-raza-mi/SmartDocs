@@ -1,6 +1,6 @@
 import { DocHeader, P, Section, CodeBlock, Code, Callout, NextPrev } from '../../_components/DocComponents';
 
-export const metadata = { title: 'API overview — SmartDocs Docs' };
+export const metadata = { title: 'API overview — DocWise Docs' };
 
 export default function ApiOverviewDocs() {
   return (
@@ -8,7 +8,7 @@ export default function ApiOverviewDocs() {
       <DocHeader
         eyebrow="Developer"
         title="API overview"
-        lead="Programmatic access to SmartDocs. Send chat messages, manage chatbots, and receive webhooks — all from your code."
+        lead="Programmatic access to DocWise. Send chat messages, manage chatbots, and receive webhooks — all from your code."
       />
 
       <Section title="Plan availability">
@@ -21,7 +21,7 @@ export default function ApiOverviewDocs() {
 
       <Section title="Authentication">
         <P>All requests require an API key in the <Code>Authorization</Code> header:</P>
-        <CodeBlock>{`Authorization: Bearer sd_live_a4f7d8c2e9b1a0d3f5e8c2a1b6d9e0c5`}</CodeBlock>
+        <CodeBlock>{`Authorization: Bearer dw_live_a4f7d8c2e9b1a0d3f5e8c2a1b6d9e0c5`}</CodeBlock>
         <P>Generate keys from <Code>/dashboard/developer</Code>. The key is shown once at creation — store it securely. Keys can be revoked any time.</P>
       </Section>
 

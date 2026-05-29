@@ -1,6 +1,6 @@
 import { DocHeader, P, Section, UL, Code, CodeBlock, Callout, NextPrev } from '../../_components/DocComponents';
 
-export const metadata = { title: 'URLs & sitemaps — SmartDocs Docs' };
+export const metadata = { title: 'URLs & sitemaps — DocWise Docs' };
 
 export default function UrlsDocs() {
   return (
@@ -8,12 +8,12 @@ export default function UrlsDocs() {
       <DocHeader
         eyebrow="Knowledge sources"
         title="URLs & sitemaps"
-        lead="Train your bot on public web pages. Add them one at a time, or feed a whole sitemap and let SmartDocs crawl it."
+        lead="Train your bot on public web pages. Add them one at a time, or feed a whole sitemap and let DocWise crawl it."
       />
 
       <Section title="Adding a single URL">
         <P>From any chatbot&apos;s <Code>Sources</Code> tab, click <Code>+ Add Source</Code> → <Code>URL</Code> tab, paste the full URL (including <Code>https://</Code>), and click <Code>Add Source</Code>.</P>
-        <P>The page is fetched server-side with a SmartDocs user agent, scripts and styles are stripped, and the main content is extracted, chunked, and embedded.</P>
+        <P>The page is fetched server-side with a DocWise user agent, scripts and styles are stripped, and the main content is extracted, chunked, and embedded.</P>
         <UL>
           <li>JavaScript-rendered pages (SPAs) may not extract well — use server-rendered URLs when possible.</li>
           <li>The same URL cannot be added twice to a chatbot.</li>
@@ -22,7 +22,7 @@ export default function UrlsDocs() {
       </Section>
 
       <Section title="Sitemap crawling (Pro & Business)">
-        <P>Paste a full sitemap URL (e.g. <Code>https://example.com/sitemap.xml</Code>) into the <Code>Sitemap</Code> tab. SmartDocs extracts every <Code>&lt;loc&gt;</Code> URL and queues them for processing.</P>
+        <P>Paste a full sitemap URL (e.g. <Code>https://example.com/sitemap.xml</Code>) into the <Code>Sitemap</Code> tab. DocWise extracts every <Code>&lt;loc&gt;</Code> URL and queues them for processing.</P>
         <UL>
           <li><b>Pro plan</b> — up to 200 URLs per sitemap</li>
           <li><b>Business plan</b> — up to 2,000 URLs per sitemap</li>
@@ -54,7 +54,7 @@ Pricing Our plans start at $29/month.`}</CodeBlock>
       </Section>
 
       <Callout tone="warning" title="Public pages only">
-        SmartDocs fetches URLs from our servers without any cookies. Authenticated-only pages, intranet URLs, and login-walled content won&apos;t work. For private content, upload files directly.
+        DocWise fetches URLs from our servers without any cookies. Authenticated-only pages, intranet URLs, and login-walled content won&apos;t work. For private content, upload files directly.
       </Callout>
 
       <NextPrev

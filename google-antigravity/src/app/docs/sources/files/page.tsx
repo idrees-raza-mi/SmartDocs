@@ -1,6 +1,6 @@
 import { DocHeader, P, Section, UL, Code, Callout, NextPrev } from '../../_components/DocComponents';
 
-export const metadata = { title: 'Files — SmartDocs Docs' };
+export const metadata = { title: 'Files — DocWise Docs' };
 
 export default function FilesDocs() {
   return (
@@ -8,7 +8,7 @@ export default function FilesDocs() {
       <DocHeader
         eyebrow="Knowledge sources"
         title="File uploads"
-        lead="Upload PDFs, Word documents, Markdown, plain text, CSV, or JSON. SmartDocs extracts the text, chunks it, and embeds it."
+        lead="Upload PDFs, Word documents, Markdown, plain text, CSV, or JSON. DocWise extracts the text, chunks it, and embeds it."
       />
 
       <Section title="Supported formats">

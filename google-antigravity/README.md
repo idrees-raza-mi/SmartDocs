@@ -1,4 +1,4 @@
-# SmartDocs AI
+# DocWise AI
 
 A production-grade SaaS platform that trains an AI on your documentation and gives you an embeddable chat widget for your website.
 

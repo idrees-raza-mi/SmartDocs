@@ -1,6 +1,6 @@
 import { DocHeader, P, Section, UL, Code, NextPrev } from '../_components/DocComponents';
 
-export const metadata = { title: 'Analytics — SmartDocs Docs' };
+export const metadata = { title: 'Analytics — DocWise Docs' };
 
 export default function AnalyticsDocs() {
   return (

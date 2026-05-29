@@ -11,7 +11,7 @@ import { hashApiKey } from '@/lib/api-keys';
 export async function POST(req: Request) {
   try {
     const auth = req.headers.get('authorization');
-    const m = auth?.match(/^Bearer\s+(sd_live_[\w-]+)$/i);
+    const m = auth?.match(/^Bearer\s+(dw_live_[\w-]+)$/i);
     if (!m) return NextResponse.json({ error: 'Missing or malformed API key' }, { status: 401 });
 
     const keyHash = hashApiKey(m[1]);
@@ -71,11 +71,11 @@ export async function POST(req: Request) {
       full += decoder.decode(r.value, { stream: true });
     }
 
-    const metaIdx = full.indexOf('__SMARTDOCS_META__');
+    const metaIdx = full.indexOf('__DOCWISE_META__');
     const text = metaIdx >= 0 ? full.slice(0, metaIdx).trim() : full.trim();
     let meta: { sources?: string[]; escalated?: boolean } = {};
     if (metaIdx >= 0) {
-      try { meta = JSON.parse(full.slice(metaIdx + '__SMARTDOCS_META__'.length).trim()); } catch {}
+      try { meta = JSON.parse(full.slice(metaIdx + '__DOCWISE_META__'.length).trim()); } catch {}
     }
 
     return NextResponse.json({ message: text, sources: meta.sources ?? [], escalated: !!meta.escalated });

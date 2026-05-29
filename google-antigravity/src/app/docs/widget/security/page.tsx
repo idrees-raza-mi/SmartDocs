@@ -1,6 +1,6 @@
 import { DocHeader, P, Section, UL, CodeBlock, Code, Callout, NextPrev } from '../../_components/DocComponents';
 
-export const metadata = { title: 'Domain allowlist — SmartDocs Docs' };
+export const metadata = { title: 'Domain allowlist — DocWise Docs' };
 
 export default function SecurityDocs() {
   return (

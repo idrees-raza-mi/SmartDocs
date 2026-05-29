@@ -3,8 +3,8 @@ import { Logo } from '@/components/ui/Logo';
 import { DocsSidebar } from './_components/DocsSidebar';
 
 export const metadata = {
-  title: 'Documentation — SmartDocs',
-  description: 'Complete guide to building, embedding, and managing AI chatbots with SmartDocs.',
+  title: 'Documentation — DocWise',
+  description: 'Complete guide to building, embedding, and managing AI chatbots with DocWise.',
 };
 
 export default function DocsLayout({ children }: { children: React.ReactNode }) {

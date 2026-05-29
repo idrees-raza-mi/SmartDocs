@@ -51,7 +51,7 @@ export async function GET() {
     return new Response(JSON.stringify(archive, null, 2), {
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
-        'Content-Disposition': 'attachment; filename="smartdocs-export.json"',
+        'Content-Disposition': 'attachment; filename="docwise-export.json"',
       },
     });
   } catch (err) {

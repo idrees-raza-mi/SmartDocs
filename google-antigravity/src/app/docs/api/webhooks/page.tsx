@@ -1,6 +1,6 @@
 import { DocHeader, P, Section, UL, CodeBlock, Code, Callout, NextPrev } from '../../_components/DocComponents';
 
-export const metadata = { title: 'Webhooks — SmartDocs Docs' };
+export const metadata = { title: 'Webhooks — DocWise Docs' };
 
 export default function WebhooksDocs() {
   return (
@@ -8,7 +8,7 @@ export default function WebhooksDocs() {
       <DocHeader
         eyebrow="Developer"
         title="Webhooks"
-        lead="Subscribe to chatbot events. SmartDocs POSTs to your endpoint when interesting things happen."
+        lead="Subscribe to chatbot events. DocWise POSTs to your endpoint when interesting things happen."
       />
 
       <Section title="Available events">
@@ -36,7 +36,7 @@ export default function WebhooksDocs() {
       </Section>
 
       <Section title="Signing">
-        <P>Every webhook POST includes an <Code>X-SmartDocs-Signature</Code> header containing an HMAC-SHA256 of the request body using your subscription&apos;s secret. Verify it before trusting the payload:</P>
+        <P>Every webhook POST includes an <Code>X-DocWise-Signature</Code> header containing an HMAC-SHA256 of the request body using your subscription&apos;s secret. Verify it before trusting the payload:</P>
         <CodeBlock lang="node.js">{`import crypto from 'crypto';
 
 function verify(body, signature, secret) {
@@ -52,7 +52,7 @@ function verify(body, signature, secret) {
       </Section>
 
       <Section title="Retries">
-        <P>If your endpoint returns a non-2xx status, SmartDocs retries with exponential backoff: 1m, 5m, 30m, 2h, 12h. After 5 failures the event is dropped (but stays visible in the audit log).</P>
+        <P>If your endpoint returns a non-2xx status, DocWise retries with exponential backoff: 1m, 5m, 30m, 2h, 12h. After 5 failures the event is dropped (but stays visible in the audit log).</P>
       </Section>
 
       <Callout tone="info" title="Status">

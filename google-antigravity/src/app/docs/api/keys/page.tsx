@@ -1,6 +1,6 @@
 import { DocHeader, P, Section, Steps, Step, CodeBlock, Code, Callout, NextPrev } from '../../_components/DocComponents';
 
-export const metadata = { title: 'API keys — SmartDocs Docs' };
+export const metadata = { title: 'API keys — DocWise Docs' };
 
 export default function ApiKeysDocs() {
   return (
@@ -8,7 +8,7 @@ export default function ApiKeysDocs() {
       <DocHeader
         eyebrow="Developer"
         title="API keys"
-        lead="Issue, manage, and revoke keys for accessing the SmartDocs REST API."
+        lead="Issue, manage, and revoke keys for accessing the DocWise REST API."
       />
 
       <Section title="Creating a key">
@@ -20,14 +20,14 @@ export default function ApiKeysDocs() {
             Give the key a descriptive name (e.g. <Code>Production backend</Code> or <Code>Marketing site</Code>). This is for your reference; visitors never see it.
           </Step>
           <Step n={3} title="Copy the key immediately">
-            The full key (<Code>sd_live_...</Code>) is shown <b>once</b>. We store only a SHA-256 hash, so we can&apos;t retrieve it later. If you lose it, revoke it and create a new one.
+            The full key (<Code>dw_live_...</Code>) is shown <b>once</b>. We store only a SHA-256 hash, so we can&apos;t retrieve it later. If you lose it, revoke it and create a new one.
           </Step>
         </Steps>
       </Section>
 
       <Section title="Key format">
-        <CodeBlock>{`sd_live_a4f7d8c2e9b1a0d3f5e8c2a1b6d9e0c5`}</CodeBlock>
-        <P>The <Code>sd_live_</Code> prefix identifies live keys (test-mode keys would use <Code>sd_test_</Code>). The rest is 32 base64url-encoded random bytes.</P>
+        <CodeBlock>{`dw_live_a4f7d8c2e9b1a0d3f5e8c2a1b6d9e0c5`}</CodeBlock>
+        <P>The <Code>dw_live_</Code> prefix identifies live keys (test-mode keys would use <Code>dw_test_</Code>). The rest is 32 base64url-encoded random bytes.</P>
       </Section>
 
       <Section title="Revoking">

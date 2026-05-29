@@ -1,6 +1,6 @@
 import { DocHeader, P, Steps, Step, CodeBlock, Code, Callout, NextPrev } from '../_components/DocComponents';
 
-export const metadata = { title: 'Quickstart — SmartDocs Docs' };
+export const metadata = { title: 'Quickstart — DocWise Docs' };
 
 export default function Quickstart() {
   return (

@@ -1,6 +1,6 @@
 import { DocHeader, P, Section, CodeBlock, Code, Callout, NextPrev } from '../../_components/DocComponents';
 
-export const metadata = { title: 'Raw text — SmartDocs Docs' };
+export const metadata = { title: 'Raw text — DocWise Docs' };
 
 export default function TextDocs() {
   return (

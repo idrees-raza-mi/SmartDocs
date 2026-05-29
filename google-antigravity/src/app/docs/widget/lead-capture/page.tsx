@@ -1,6 +1,6 @@
 import { DocHeader, P, Section, UL, Code, Callout, NextPrev } from '../../_components/DocComponents';
 
-export const metadata = { title: 'Lead capture — SmartDocs Docs' };
+export const metadata = { title: 'Lead capture — DocWise Docs' };
 
 export default function LeadCaptureDocs() {
   return (

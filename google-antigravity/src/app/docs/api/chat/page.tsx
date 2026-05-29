@@ -1,6 +1,6 @@
 import { DocHeader, P, Section, CodeBlock, Code, NextPrev } from '../../_components/DocComponents';
 
-export const metadata = { title: 'POST /v1/chat — SmartDocs Docs' };
+export const metadata = { title: 'POST /v1/chat — DocWise Docs' };
 
 export default function ApiChatDocs() {
   return (
@@ -43,7 +43,7 @@ export default function ApiChatDocs() {
 
       <Section title="Examples">
         <CodeBlock lang="curl">{`curl -X POST https://YOUR-APP.com/api/v1/chat \\
-  -H "Authorization: Bearer sd_live_..." \\
+  -H "Authorization: Bearer dw_live_..." \\
   -H "Content-Type: application/json" \\
   -d '{
     "chatbotId": "f2e9c5b4-...",
@@ -54,7 +54,7 @@ export default function ApiChatDocs() {
         <CodeBlock lang="node.js">{`const res = await fetch('https://YOUR-APP.com/api/v1/chat', {
   method: 'POST',
   headers: {
-    'Authorization': \`Bearer \${process.env.SMARTDOCS_KEY}\`,
+    'Authorization': \`Bearer \${process.env.DOCWISE_KEY}\`,
     'Content-Type': 'application/json',
   },
   body: JSON.stringify({
@@ -70,7 +70,7 @@ console.log(data.message);`}</CodeBlock>
 
 res = requests.post(
     "https://YOUR-APP.com/api/v1/chat",
-    headers={"Authorization": f"Bearer {os.environ['SMARTDOCS_KEY']}"},
+    headers={"Authorization": f"Bearer {os.environ['DOCWISE_KEY']}"},
     json={
         "chatbotId": "f2e9c5b4-...",
         "message": "How do I cancel?",

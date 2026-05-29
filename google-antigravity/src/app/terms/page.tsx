@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Logo } from '@/components/ui/Logo';
 
-export const metadata = { title: 'Terms of Service — SmartDocs' };
+export const metadata = { title: 'Terms of Service — DocWise' };
 
 export default function TermsPage() {
   return (
@@ -14,7 +14,7 @@ export default function TermsPage() {
         <p className="text-white/40">Last updated: today</p>
 
         <h2>Acceptable use</h2>
-        <p>You agree not to use SmartDocs to host content that is illegal, harmful, deceptive, or violates intellectual property rights.</p>
+        <p>You agree not to use DocWise to host content that is illegal, harmful, deceptive, or violates intellectual property rights.</p>
 
         <h2>Your data</h2>
         <p>You retain full ownership of all knowledge content you upload. We obtain a limited license to store and serve it as needed to provide the service.</p>
@@ -29,7 +29,7 @@ export default function TermsPage() {
         <p>We may suspend or terminate accounts for breach of these terms. You can terminate yours at any time and export your data.</p>
 
         <h2>Contact</h2>
-        <p>Legal: <a href="mailto:legal@smartdocs.ai" className="text-white underline">legal@smartdocs.ai</a></p>
+        <p>Legal: <a href="mailto:legal@docwise.ai" className="text-white underline">legal@docwise.ai</a></p>
       </article>
     </div>
   );

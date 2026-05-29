@@ -15,7 +15,7 @@ export const PricingSection = () => {
       slug: 'free',
       price: 0,
       description: 'Try the platform forever — no time limit.',
-      features: ['1 chatbot', '50 messages/month', '1 source', 'SmartDocs branding shown', 'No credit card required'],
+      features: ['1 chatbot', '50 messages/month', '1 source', 'DocWise branding shown', 'No credit card required'],
       recommended: false,
       cta: 'Start free'
     },
@@ -24,7 +24,7 @@ export const PricingSection = () => {
       slug: 'starter',
       price: annual ? 24 : 29,
       description: 'Perfect for small websites just getting started.',
-      features: ['1 chatbot', '500 messages/month', '5 sources (URLs or files)', 'CSV conversation export', 'Email support', 'SmartDocs branding shown'],
+      features: ['1 chatbot', '500 messages/month', '5 sources (URLs or files)', 'CSV conversation export', 'Email support', 'DocWise branding shown'],
       recommended: false,
       cta: 'Get started'
     },
@@ -33,7 +33,7 @@ export const PricingSection = () => {
       slug: 'pro',
       price: annual ? 63 : 79,
       description: 'For growing businesses with support volume.',
-      features: ['5 chatbots', '5,000 messages/month', 'Unlimited sources', 'Remove SmartDocs branding', 'Analytics dashboard', 'Priority support', 'Custom accent color'],
+      features: ['5 chatbots', '5,000 messages/month', 'Unlimited sources', 'Remove DocWise branding', 'Analytics dashboard', 'Priority support', 'Custom accent color'],
       recommended: true,
       cta: 'Get Pro'
     },

@@ -25,10 +25,10 @@ export const Comparison = () => {
     <section className="relative py-20 px-6 sm:px-12">
       <div className="max-w-5xl mx-auto">
         <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight text-center mb-3">
-          How SmartDocs compares
+          How DocWise compares
         </h2>
         <p className="text-white/50 text-center mb-12 max-w-xl mx-auto">
-          We built SmartDocs because existing chatbots either hallucinated, charged per seat, or hid behind a sales call.
+          We built DocWise because existing chatbots either hallucinated, charged per seat, or hid behind a sales call.
         </p>
 
         <div className="overflow-x-auto rounded-2xl border border-white/10 bg-[#0a0a0a]">
@@ -36,7 +36,7 @@ export const Comparison = () => {
             <thead>
               <tr className="border-b border-white/5 bg-white/[0.02]">
                 <th className="text-left py-4 px-6 text-xs font-bold text-white/40 uppercase tracking-wider">Feature</th>
-                <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-white">SmartDocs</th>
+                <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-white">DocWise</th>
                 <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-white/50">Chatbase</th>
                 <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-white/50">Intercom Fin</th>
               </tr>

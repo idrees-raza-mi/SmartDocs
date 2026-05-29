@@ -4,7 +4,7 @@
   var CHATBOT_ID = document.currentScript.getAttribute('data-chatbot-id');
 
   if (!CHATBOT_ID) {
-    console.error('SmartDocs: Missing data-chatbot-id attribute on script tag.');
+    console.error('DocWise: Missing data-chatbot-id attribute on script tag.');
     return;
   }
 
@@ -90,7 +90,7 @@
     var gdprRequired = !!config.gdpr_consent;
     var suggestedQuestions = Array.isArray(config.suggested_questions) ? config.suggested_questions.slice(0, 3) : [];
 
-    var sessionKey = 'smartdocs_session_' + CHATBOT_ID;
+    var sessionKey = 'docwise_session_' + CHATBOT_ID;
     var sessionId = localStorage.getItem(sessionKey);
     var isReturning = !!sessionId;
     if (!sessionId) {
@@ -98,10 +98,10 @@
       localStorage.setItem(sessionKey, sessionId);
     }
 
-    var leadCapturedKey = 'smartdocs_lead_' + CHATBOT_ID;
+    var leadCapturedKey = 'docwise_lead_' + CHATBOT_ID;
     var leadCaptured = !!localStorage.getItem(leadCapturedKey);
 
-    var consentGiven = getCookie('smartdocs_consent_' + CHATBOT_ID) === '1';
+    var consentGiven = getCookie('docwise_consent_' + CHATBOT_ID) === '1';
 
     var positionCss = position === 'bottom-left'
       ? 'bottom: 24px; left: 24px;'
@@ -164,7 +164,7 @@
     container.id = 'sd-widget-container';
 
     var brandingHtml = showBranding
-      ? '<div id="sd-branding">Powered by <a href="' + BASE_URL + '" target="_blank" rel="noopener">SmartDocs</a></div>'
+      ? '<div id="sd-branding">Powered by <a href="' + BASE_URL + '" target="_blank" rel="noopener">DocWise</a></div>'
       : '';
 
     container.innerHTML =
@@ -311,7 +311,7 @@
         '<button>Accept and continue</button>';
       messagesDiv.appendChild(box);
       box.querySelector('button').onclick = function () {
-        setCookie('smartdocs_consent_' + CHATBOT_ID, '1', 365);
+        setCookie('docwise_consent_' + CHATBOT_ID, '1', 365);
         consentGiven = true;
         box.remove();
         input.disabled = false;
@@ -384,17 +384,17 @@
           if (pull.done) { done = true; break; }
           streamed += decoder.decode(pull.value, { stream: true });
 
-          var metaIdx = streamed.indexOf('__SMARTDOCS_META__');
+          var metaIdx = streamed.indexOf('__DOCWISE_META__');
           var visible = metaIdx >= 0 ? streamed.slice(0, metaIdx) : streamed;
           botWrap.innerHTML = renderMarkdown(visible.trim());
           scrollDown();
         }
 
         // Parse trailing metadata frame
-        var metaIdx2 = streamed.indexOf('__SMARTDOCS_META__');
+        var metaIdx2 = streamed.indexOf('__DOCWISE_META__');
         var meta = {};
         if (metaIdx2 >= 0) {
-          try { meta = JSON.parse(streamed.slice(metaIdx2 + '__SMARTDOCS_META__'.length).trim()); } catch (e) { /* ignore */ }
+          try { meta = JSON.parse(streamed.slice(metaIdx2 + '__DOCWISE_META__'.length).trim()); } catch (e) { /* ignore */ }
         }
         var finalText = metaIdx2 >= 0 ? streamed.slice(0, metaIdx2).trim() : streamed.trim();
         botWrap.remove();
@@ -433,7 +433,7 @@
     .then(function (r) { return r.ok ? r.json() : Promise.reject(r); })
     .then(function (cfg) {
       if (cfg && cfg.is_active !== false) init(cfg);
-      else console.error('SmartDocs: chatbot is disabled.');
+      else console.error('DocWise: chatbot is disabled.');
     })
-    .catch(function () { console.error('SmartDocs: failed to load chatbot configuration.'); });
+    .catch(function () { console.error('DocWise: failed to load chatbot configuration.'); });
 })();

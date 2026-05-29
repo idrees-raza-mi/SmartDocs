@@ -166,7 +166,7 @@ function BillingPageInner() {
       {expired && !trialIsExpired && (
         <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3">
           <WarningCircle size={20} weight="fill" className="text-red-400 shrink-0" />
-          <p className="text-sm text-red-300 font-medium">Your trial has ended. Choose a plan to continue using SmartDocs.</p>
+          <p className="text-sm text-red-300 font-medium">Your trial has ended. Choose a plan to continue using DocWise.</p>
         </div>
       )}
 

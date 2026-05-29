@@ -1,6 +1,6 @@
 import { DocHeader, P, Section, UL, Code, Callout, NextPrev } from '../_components/DocComponents';
 
-export const metadata = { title: 'Confidence scoring — SmartDocs Docs' };
+export const metadata = { title: 'Confidence scoring — DocWise Docs' };
 
 export default function ConfidenceDocs() {
   return (
