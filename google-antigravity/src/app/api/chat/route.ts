@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { openai } from '@/lib/openai';
+import { gemini, MODELS } from '@/lib/llm';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { generateEmbedding, searchSimilarChunks } from '@/lib/embeddings';
 import { PLAN_LIMITS, type PlanType } from '@/lib/constants';
@@ -7,7 +7,8 @@ import { rateLimit } from '@/lib/rate-limit';
 import { enrichAfterChat } from '@/lib/post-chat';
 import { effectivePlan } from '@/lib/plan';
 
-export const runtime = 'edge';
+// Switched off the Edge runtime because the Google GenAI SDK uses Node-only
+// APIs internally. Node runtime is still fast enough for streaming chat.
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -194,24 +195,32 @@ ${promptContext}`;
       content: message,
     });
 
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        ...recentHistory.map((m) => ({ role: m.role, content: m.content }) as const),
-        { role: 'user', content: message },
-      ],
-      stream: true,
-      temperature: 0.3,
+    // Build a Gemini conversation. Gemini uses 'user' / 'model' as roles
+    // (not 'user' / 'assistant'), and accepts a system instruction separately
+    // rather than as a message in the history.
+    const geminiHistory = recentHistory.map((m) => ({
+      role: m.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: m.content }],
+    }));
+
+    const model = gemini.getGenerativeModel({
+      model: MODELS.chat,
+      systemInstruction: systemPrompt,
+      generationConfig: {
+        temperature: 0.3,
+      },
     });
+
+    const chatSession = model.startChat({ history: geminiHistory });
+    const streamResult = await chatSession.sendMessageStream(message);
 
     const stream = new ReadableStream({
       async start(controller) {
         let fullResponse = '';
         let escalateStripped = false;
         try {
-          for await (const chunk of response) {
-            const text = chunk.choices[0]?.delta?.content || '';
+          for await (const chunk of streamResult.stream) {
+            const text = chunk.text();
             fullResponse += text;
             // Strip [ESCALATE] token before streaming to client (only first occurrence)
             let visible = text;

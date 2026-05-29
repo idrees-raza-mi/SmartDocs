@@ -363,3 +363,69 @@ CREATE INDEX IF NOT EXISTS trial_blocklist_email_hash_idx
 -- Only the service role can read/write this table. Never expose it to clients.
 ALTER TABLE public.trial_blocklist ENABLE ROW LEVEL SECURITY;
 -- No policies = no anon access.
+
+
+-- =============================================
+-- FIX 9: SWITCH FROM OPENAI (1536-dim) TO GEMINI (768-dim) EMBEDDINGS
+-- =============================================
+-- The chunks.embedding column is sized for OpenAI text-embedding-3-small
+-- (1536 dimensions). Gemini text-embedding-004 returns 768-dim vectors, so
+-- we must:
+--   1. Delete all existing chunk rows (different model = incomparable vectors)
+--   2. Drop the HNSW index (depends on the column's dimensionality)
+--   3. Alter the column to vector(768)
+--   4. Recreate the HNSW index
+--   5. Update match_chunks() so its parameter type matches
+--
+-- After this runs, every Source must be re-ingested by the owner (they can
+-- click "Re-sync" on URL sources, or delete + re-add for files/text).
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'chunks'
+      AND column_name = 'embedding'
+      AND udt_name = 'vector'
+  ) THEN
+    -- 1. Drop dependent indexes
+    DROP INDEX IF EXISTS public.chunks_embedding_hnsw;
+    DROP INDEX IF EXISTS public.chunks_embedding_idx;
+
+    -- 2. Wipe existing embeddings (incompatible dimensionality)
+    TRUNCATE TABLE public.chunks;
+    -- Mark every existing source as needing re-ingestion
+    UPDATE public.sources SET chunk_count = 0, status = 'pending';
+
+    -- 3. Resize the column
+    ALTER TABLE public.chunks ALTER COLUMN embedding TYPE vector(768);
+
+    -- 4. Recreate the HNSW index for the new dimensionality
+    CREATE INDEX chunks_embedding_hnsw
+      ON public.chunks USING hnsw (embedding vector_cosine_ops);
+  END IF;
+END $$;
+
+-- 5. Recreate match_chunks with a vector(768) signature so the RPC accepts
+--    the new embedding shape. CREATE OR REPLACE preserves callers.
+CREATE OR REPLACE FUNCTION public.match_chunks(
+  query_embedding vector(768),
+  chatbot_id_filter uuid,
+  match_threshold float DEFAULT 0.7,
+  match_count int DEFAULT 5
+)
+RETURNS TABLE(id uuid, content text, similarity float, source_name text)
+LANGUAGE plpgsql AS $$
+BEGIN
+  RETURN QUERY
+  SELECT c.id, c.content,
+    1 - (c.embedding <=> query_embedding) AS similarity,
+    s.name as source_name
+  FROM public.chunks c
+  JOIN public.sources s ON c.source_id = s.id
+  WHERE c.chatbot_id = chatbot_id_filter
+    AND 1 - (c.embedding <=> query_embedding) > match_threshold
+  ORDER BY c.embedding <=> query_embedding
+  LIMIT match_count;
+END;
+$$;

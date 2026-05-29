@@ -18,11 +18,11 @@ export async function GET() {
     checks.supabase = { ok: false, error: err instanceof Error ? err.message : 'unknown' };
   }
 
-  // OpenAI key set?
-  checks.openai = { ok: !!process.env.OPENAI_API_KEY };
+  // Gemini key set?
+  checks.gemini = { ok: !!process.env.GEMINI_API_KEY };
 
-  // Stripe key set?
-  checks.stripe = { ok: !!process.env.STRIPE_SECRET_KEY };
+  // LemonSqueezy keys set?
+  checks.lemonsqueezy = { ok: !!process.env.LEMONSQUEEZY_API_KEY };
 
   // Resend key set?
   checks.resend = { ok: !!process.env.RESEND_API_KEY };
