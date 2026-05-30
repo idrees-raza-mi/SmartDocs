@@ -1,12 +1,21 @@
 import { createClient } from '@/lib/supabase/server';
+import { supabaseAdmin } from '@/lib/supabase/admin';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { ChatbotCard } from '@/components/dashboard/ChatbotCard';
 import { ChatCircleDots, FileText, Users, WarningCircle, Plus, CheckCircle, Circle, ArrowRight, Code } from '@phosphor-icons/react/dist/ssr';
 import Link from 'next/link';
 
-const now = Date.now();
+// Force this page to render fresh on every request so stats reflect the
+// current state of the user's chatbot rather than a build-time snapshot.
+export const dynamic = 'force-dynamic';
 
 export default async function DashboardOverview() {
+  // Date.now() must be evaluated PER REQUEST. Pulling it from module scope
+  // freezes the value at server cold-start, which on Vercel's serverless
+  // can be hours or days old — so every "last 7 days" filter would compare
+  // recent messages to a stale anchor and discard them silently.
+  const now = Date.now();
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -14,40 +23,47 @@ export default async function DashboardOverview() {
     return null;
   }
 
-  const { data: org } = await supabase
+  // Read with the admin client — we've already verified the caller's identity
+  // above, and admin queries don't depend on RLS policy correctness (which
+  // gets fragile when joining across many tables in chained reads).
+  const { data: org } = await supabaseAdmin
     .from('organizations')
     .select('*')
     .eq('user_id', user.id)
     .single();
 
-  const { data: chatbots, count: chatbotCount } = await supabase
+  const { data: chatbots, count: chatbotCount } = await supabaseAdmin
     .from('chatbots')
     .select('*', { count: 'exact' })
     .eq('org_id', org?.id || '');
 
   let sourceCount = 0;
   let unansweredTotal = 0;
+  let convIds: string[] = [];
 
   if (chatbots && chatbots.length > 0) {
     const chatbotIds = chatbots.map(b => b.id);
 
-    const { count: sCount } = await supabase
+    const { count: sCount } = await supabaseAdmin
       .from('sources')
       .select('*', { count: 'exact', head: true })
       .in('chatbot_id', chatbotIds);
     sourceCount = sCount || 0;
 
-    const { count: unansCount } = await supabase
-      .from('messages')
-      .select('*', { count: 'exact', head: true })
-      .in('conversation_id', (
-        await supabase
-          .from('conversations')
-          .select('id')
-          .in('chatbot_id', chatbotIds)
-      ).data?.map(c => c.id) || [])
-      .eq('was_escalated', true);
-    unansweredTotal = unansCount || 0;
+    const { data: convs } = await supabaseAdmin
+      .from('conversations')
+      .select('id')
+      .in('chatbot_id', chatbotIds);
+    convIds = (convs ?? []).map((c) => c.id);
+
+    if (convIds.length > 0) {
+      const { count: unansCount } = await supabaseAdmin
+        .from('messages')
+        .select('*', { count: 'exact', head: true })
+        .in('conversation_id', convIds)
+        .eq('was_escalated', true);
+      unansweredTotal = unansCount || 0;
+    }
   }
 
   const msgThisMonth = org?.message_count_this_month || 0;
@@ -58,12 +74,9 @@ export default async function DashboardOverview() {
   let unansweredQuestions: { question: string; count: number }[] = [];
 
   if (chatbots && chatbots.length > 0) {
-    const chatbotIds = chatbots.map(b => b.id);
-    const convIds = (await supabase.from('conversations').select('id').in('chatbot_id', chatbotIds)).data?.map(c => c.id) || [];
-
     if (convIds.length > 0) {
       const sevenDaysAgo = new Date(now - 7 * 86400000).toISOString();
-      const { data: recentMsgs } = await supabase
+      const { data: recentMsgs } = await supabaseAdmin
         .from('messages')
         .select('role, content, was_escalated, created_at')
         .in('conversation_id', convIds)
