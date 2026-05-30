@@ -8,7 +8,13 @@ import { Footer } from '@/components/landing/Footer';
 import { TrustStrip } from '@/components/landing/TrustStrip';
 import { Comparison } from '@/components/landing/Comparison';
 import { FAQ } from '@/components/landing/FAQ';
+import Script from 'next/script';
 import Link from 'next/link';
+
+// Read at build time. When NEXT_PUBLIC_DEMO_CHATBOT_ID is set, the DocWise
+// widget loads on the landing page itself so visitors can interrogate the
+// product before signing up. Powerful conversion lever.
+const DEMO_BOT_ID = process.env.NEXT_PUBLIC_DEMO_CHATBOT_ID;
 
 export default function LandingPage() {
   return (
@@ -39,6 +45,14 @@ export default function LandingPage() {
         <div id="faq"><FAQ /></div>
       </main>
       <Footer />
+
+      {DEMO_BOT_ID && (
+        <Script
+          src="/widget.js"
+          data-chatbot-id={DEMO_BOT_ID}
+          strategy="lazyOnload"
+        />
+      )}
     </div>
   );
 }

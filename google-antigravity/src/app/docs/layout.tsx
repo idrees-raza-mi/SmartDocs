@@ -1,6 +1,12 @@
 import Link from 'next/link';
+import Script from 'next/script';
 import { Logo } from '@/components/ui/Logo';
 import { DocsSidebar } from './_components/DocsSidebar';
+
+// Mounts the live DocWise demo bot on every docs page so readers can ask
+// questions about the docs themselves. Enabled when NEXT_PUBLIC_DEMO_CHATBOT_ID
+// is set in the environment.
+const DEMO_BOT_ID = process.env.NEXT_PUBLIC_DEMO_CHATBOT_ID;
 
 export const metadata = {
   title: 'Documentation — DocWise',
@@ -34,6 +40,14 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
           <div className="max-w-3xl mx-auto">{children}</div>
         </main>
       </div>
+
+      {DEMO_BOT_ID && (
+        <Script
+          src="/widget.js"
+          data-chatbot-id={DEMO_BOT_ID}
+          strategy="lazyOnload"
+        />
+      )}
     </div>
   );
 }
