@@ -126,10 +126,34 @@ export default async function DashboardOverview() {
     }
   }
 
-  const chatbotsWithStats = (chatbots || []).map(bot => ({
+  // Per-chatbot source + unanswered counts so each card on the overview
+  // shows the same numbers as the Chatbots list page.
+  const perBotSourceCount = new Map<string, number>();
+  const perBotUnansweredCount = new Map<string, number>();
+
+  if (chatbots && chatbots.length > 0) {
+    const ids = chatbots.map((b) => b.id);
+    const { data: sourceRows } = await supabaseAdmin
+      .from('sources')
+      .select('chatbot_id')
+      .in('chatbot_id', ids);
+    for (const row of sourceRows ?? []) {
+      perBotSourceCount.set(row.chatbot_id, (perBotSourceCount.get(row.chatbot_id) ?? 0) + 1);
+    }
+    const { data: unansRows } = await supabaseAdmin
+      .from('unanswered_questions')
+      .select('chatbot_id')
+      .in('chatbot_id', ids)
+      .is('resolved_at', null);
+    for (const row of unansRows ?? []) {
+      perBotUnansweredCount.set(row.chatbot_id, (perBotUnansweredCount.get(row.chatbot_id) ?? 0) + 1);
+    }
+  }
+
+  const chatbotsWithStats = (chatbots || []).map((bot) => ({
     ...bot,
-    sourceCount: 0,
-    unansweredCount: 0,
+    sourceCount: perBotSourceCount.get(bot.id) ?? 0,
+    unansweredCount: perBotUnansweredCount.get(bot.id) ?? 0,
   }));
 
   const dayLabels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
