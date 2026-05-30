@@ -103,21 +103,38 @@
 
     var consentGiven = getCookie('docwise_consent_' + CHATBOT_ID) === '1';
 
+    // Use env(safe-area-inset-*) so the bubble + window clear iOS notches,
+    // gesture bars, and Android display cutouts. max() falls back to our
+    // padding when the env var is 0 (desktop, older mobiles).
     var positionCss = position === 'bottom-left'
-      ? 'bottom: 24px; left: 24px;'
-      : 'bottom: 24px; right: 24px;';
+      ? 'bottom: max(24px, env(safe-area-inset-bottom)); left: max(24px, env(safe-area-inset-left));'
+      : 'bottom: max(24px, env(safe-area-inset-bottom)); right: max(24px, env(safe-area-inset-right));';
+    var mobilePositionCss = position === 'bottom-left'
+      ? 'bottom: max(16px, env(safe-area-inset-bottom)); left: max(16px, env(safe-area-inset-left));'
+      : 'bottom: max(16px, env(safe-area-inset-bottom)); right: max(16px, env(safe-area-inset-right));';
     var windowAnchor = position === 'bottom-left' ? 'left: 0;' : 'right: 0;';
 
     var style = document.createElement('style');
     style.textContent = [
-      '#sd-widget-container { position: fixed; ' + positionCss + ' z-index: 999999; font-family: system-ui, -apple-system, sans-serif; }',
-      '#sd-bubble { width: 56px; height: 56px; border-radius: 50%; background-color: ' + accent + '; color: ' + fg + '; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 24px rgba(0,0,0,0.25); transition: transform 0.2s, box-shadow 0.2s; }',
+      '#sd-widget-container { position: fixed; ' + positionCss + ' z-index: 999999; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }',
+      '#sd-bubble { width: 56px; height: 56px; border-radius: 50%; background-color: ' + accent + '; color: ' + fg + '; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 24px rgba(0,0,0,0.25); transition: transform 0.2s, box-shadow 0.2s; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }',
       '#sd-bubble:hover { transform: scale(1.08); }',
-      '#sd-window { position: absolute; bottom: 72px; ' + windowAnchor + ' width: 360px; height: 540px; background: #0f0f0f; border-radius: 16px; box-shadow: 0 16px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08); display: none; flex-direction: column; overflow: hidden; }',
-      '@media (max-width: 640px) { #sd-window { position: fixed; inset: 0; width: 100vw; height: 100vh; border-radius: 0; } }',
-      '#sd-header { background: ' + accent + '; color: ' + fg + '; padding: 14px 16px; font-weight: 700; font-size: 15px; display: flex; justify-content: space-between; align-items: center; }',
-      '#sd-close { cursor: pointer; background: rgba(0,0,0,0.15); border: none; color: ' + fg + '; font-size: 18px; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }',
-      '#sd-messages { flex: 1; padding: 16px; overflow-y: auto; background: #0a0a0a; display: flex; flex-direction: column; gap: 12px; }',
+      '#sd-bubble:active { transform: scale(0.95); }',
+      // Default desktop sizing — capped against viewport so very short
+      // browsers (snapped windows etc.) still show the input area.
+      '#sd-window { position: absolute; bottom: 72px; ' + windowAnchor + ' width: 380px; height: 620px; max-height: calc(100vh - 120px); background: #0f0f0f; border-radius: 16px; box-shadow: 0 16px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08); display: none; flex-direction: column; overflow: hidden; }',
+      // Tablet: keep floating but a touch larger so it doesn\'t feel cramped.
+      '@media (min-width: 641px) and (max-width: 1024px) { #sd-window { width: 420px; height: 680px; max-height: calc(100vh - 120px); } }',
+      // Mobile portrait: full-screen using dvh so iOS keyboard + Safari URL
+      // bar resizing don\'t crop the input area off the bottom of the screen.
+      '@media (max-width: 640px) { #sd-widget-container { ' + mobilePositionCss + ' } #sd-window { position: fixed; inset: 0; width: 100vw; height: 100vh; height: 100dvh; max-height: 100dvh; border-radius: 0; } }',
+      // Landscape with short viewport — keep the conversation visible.
+      '@media (max-height: 480px) and (orientation: landscape) { #sd-window { width: min(420px, 100vw); height: 100vh; height: 100dvh; max-height: 100dvh; } }',
+      // Respect reduced-motion accessibility preference.
+      '@media (prefers-reduced-motion: reduce) { #sd-bubble, #sd-bubble:hover, #sd-bubble:active { transition: none; transform: none; } .sd-typing span { animation: none; opacity: 0.6; } }',
+      '#sd-header { background: ' + accent + '; color: ' + fg + '; padding: 14px 16px; font-weight: 700; font-size: 15px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; padding-top: max(14px, env(safe-area-inset-top)); }',
+      '#sd-close { cursor: pointer; background: rgba(0,0,0,0.15); border: none; color: ' + fg + '; font-size: 18px; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }',
+      '#sd-messages { flex: 1 1 auto; min-height: 0; padding: 16px; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; background: #0a0a0a; display: flex; flex-direction: column; gap: 12px; }',
       '#sd-messages::-webkit-scrollbar { width: 4px; }',
       '#sd-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }',
       '.sd-message { max-width: 85%; padding: 10px 14px; border-radius: 14px; font-size: 14px; line-height: 1.5; word-wrap: break-word; }',
@@ -132,22 +149,29 @@
       '.sd-citations { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }',
       '.sd-citation { font-size: 10px; padding: 2px 6px; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); border-radius: 4px; }',
       '.sd-feedback { display: flex; gap: 6px; margin-top: 6px; }',
-      '.sd-feedback button { background: transparent; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); width: 24px; height: 24px; border-radius: 6px; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; font-size: 12px; }',
+      // Larger touch target (28x28) to better match WCAG 2.5.5 (24px min).
+      '.sd-feedback button { background: transparent; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); width: 28px; height: 28px; border-radius: 6px; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; font-size: 12px; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }',
       '.sd-feedback button:hover { color: white; border-color: rgba(255,255,255,0.3); }',
       '.sd-feedback button.active { background: rgba(255,255,255,0.15); color: white; }',
       '.sd-followups { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }',
-      '.sd-followup-btn { text-align: left; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); padding: 8px 12px; border-radius: 10px; font-size: 13px; cursor: pointer; transition: all 0.15s; }',
+      '.sd-followup-btn { text-align: left; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); padding: 10px 12px; border-radius: 10px; font-size: 13px; cursor: pointer; transition: all 0.15s; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }',
       '.sd-followup-btn:hover { background: rgba(255,255,255,0.1); border-color: ' + accent + '; }',
+      '.sd-followup-btn:active { transform: scale(0.98); }',
       '.sd-typing { display: inline-flex; gap: 4px; align-items: center; }',
       '.sd-typing span { width: 6px; height: 6px; background: rgba(255,255,255,0.4); border-radius: 50%; animation: sd-bounce 1.2s infinite; }',
       '.sd-typing span:nth-child(2) { animation-delay: 0.15s; } .sd-typing span:nth-child(3) { animation-delay: 0.3s; }',
       '@keyframes sd-bounce { 0%, 60%, 100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-4px); opacity: 1; } }',
-      '#sd-input-area { padding: 12px; background: #0f0f0f; border-top: 1px solid rgba(255,255,255,0.06); display: flex; gap: 8px; align-items: center; }',
-      '#sd-input { flex: 1; padding: 9px 14px; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; outline: none; font-size: 14px; background: rgba(255,255,255,0.04); color: white; }',
+      // Input area gets safe-area bottom padding on mobile so the send
+      // button isn\'t flush with the iOS home indicator.
+      '#sd-input-area { padding: 12px; padding-bottom: max(12px, env(safe-area-inset-bottom)); background: #0f0f0f; border-top: 1px solid rgba(255,255,255,0.06); display: flex; gap: 8px; align-items: center; flex-shrink: 0; }',
+      // 16px font-size on the input prevents iOS Safari from auto-zooming
+      // when the user taps to focus — biggest single mobile UX win.
+      '#sd-input { flex: 1; min-width: 0; padding: 10px 14px; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; outline: none; font-size: 16px; line-height: 1.3; background: rgba(255,255,255,0.04); color: white; -webkit-appearance: none; appearance: none; }',
       '#sd-input:focus { border-color: ' + accent + '; }',
-      '#sd-send { background: ' + accent + '; color: ' + fg + '; border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }',
-      '#sd-send:disabled { opacity: 0.4; cursor: not-allowed; }',
-      '#sd-branding { text-align: center; padding: 6px 0 8px; font-size: 11px; color: rgba(255,255,255,0.2); background: #0f0f0f; }',
+      '#sd-send { background: ' + accent + '; color: ' + fg + '; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }',
+      '#sd-send:active { transform: scale(0.92); }',
+      '#sd-send:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }',
+      '#sd-branding { text-align: center; padding: 6px 0 max(8px, env(safe-area-inset-bottom)); font-size: 11px; color: rgba(255,255,255,0.2); background: #0f0f0f; flex-shrink: 0; }',
       '#sd-branding a { color: rgba(255,255,255,0.4); text-decoration: none; }',
       '.sd-consent { padding: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; margin-bottom: 8px; }',
       '.sd-consent button { background: ' + accent + '; color: ' + fg + '; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; margin-top: 8px; }',
